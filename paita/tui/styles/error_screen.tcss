@@ -1,0 +1,30 @@
+ErrorScreen {
+    align: center middle;
+    /*border: tall green;*/
+}
+
+#error_screen_vertical {
+    width: 50%;
+    height: 16;
+    align: center middle;
+    content-align: center middle;
+    background: $panel;
+    border: thick $error;
+}
+
+#error_screen_label {
+    height: 70%;
+    width: 100%;
+    margin: 0 2 0 2;
+    content-align: center middle;
+    /*border: tall yellow;*/
+}
+
+#error_screen_button_block {
+    align: center middle;
+    /*border: tall purple;*/
+}
+
+#error_screen_button {
+    /*border: tall red;*/
+}

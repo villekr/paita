@@ -1,0 +1,38 @@
+name: main
+on: [push, pull_request]
+#on:
+#  push:
+#    branches-ignore:
+#      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      - name: Setup Poetry
+        uses: abatilo/actions-poetry@v2
+#      - name: Setup Python venv
+#        run: |
+#          poetry config virtualenvs.create true --local
+#          poetry config virtualenvs.in-project true --local
+#      - uses: actions/cache@v3
+#        name: Python Poetry venv cache
+#        with:
+#          path: ./.venv
+#          key: venv-${{ hashFiles('poetry.lock') }}
+      - name: Python install dependencies and run flake8, isort and black checks
+        working-directory: .
+        run: |
+          poetry install
+          poetry run flake8 .
+          poetry run isort --check .
+          poetry run black --check .
+      - name: Run Tests
+        run: poetry run pytest --cov-report=xml
+#      - name: Upload Coverage to Codecov
+#        uses: codecov/codecov-action@v1

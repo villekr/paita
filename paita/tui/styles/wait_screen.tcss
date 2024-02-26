@@ -1,0 +1,30 @@
+WaitScreen {
+    align: center middle;
+    /*border: tall green;*/
+}
+
+#wait_screen_vertical {
+    width: 70;
+    height: 7;
+    align: center middle;
+    content-align: center middle;
+    background: $panel;
+    border: $accent;
+}
+
+#wait_screen_label {
+    height: 70%;
+    width: 100%;
+    margin: 0 2 0 2;
+    content-align: center middle;
+    /*border: tall yellow;*/
+}
+
+#wait_screen_button_block {
+    align: center middle;
+    /*border: tall purple;*/
+}
+
+#wait_screen_button {
+    /*border: tall #warning;*/
+}
