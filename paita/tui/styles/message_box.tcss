@@ -1,0 +1,52 @@
+.message {
+    min-height: 1;
+    height: auto;
+    /*border: yellow;*/
+    padding: 0 1 0 1;
+    margin: 1 0 0 0;
+}
+
+.info {
+    background: $accent;
+}
+
+.error {
+    background: $error;
+}
+
+.question {
+    /*border: blue;*/
+}
+
+.answer {
+    /*border: green;*/
+}
+
+.info_label {
+    background: $accent;
+    padding: 1 2;
+}
+
+.error_label {
+    background: $error;
+    padding: 1 2;
+}
+
+.question_label {
+    background: $primary;
+    padding: 1 2;
+}
+
+.answer_label {
+    background: $secondary;
+    padding: 1 2;
+}
+
+.markdown {
+    height: auto;
+    width: 95%;
+    background: $panel;
+    /*border: yellow;*/
+    padding: 1 1 0 1;
+    margin: 0 1 0 1;
+}

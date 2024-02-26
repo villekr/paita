@@ -1,0 +1,8 @@
+[flake8]
+# Set max line length to match Black default
+max-line-length = 88
+ignore: S101
+max-complexity: 10
+
+# Bugbear
+select: B,B9
