@@ -1,3 +1,4 @@
 from loguru import logger as log
+from textual.logging import TextualHandler
 
-log.level("ERROR")  # DEBUG
+log.configure(handlers=[{"sink": TextualHandler(), "format": "{message}"}])

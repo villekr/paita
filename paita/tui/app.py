@@ -6,7 +6,6 @@ from cache3 import DiskCache
 from textual.app import App, ComposeResult, Widget
 from textual.binding import Binding
 from textual.containers import Container, Horizontal, VerticalScroll
-from textual.logging import TextualHandler
 from textual.widgets import Button, Footer, Header, Input, LoadingIndicator
 
 import paita.localization.labels as label
@@ -21,8 +20,6 @@ from paita.tui.settings_screen import SettingsScreen
 from paita.tui.wait_screen import WaitScreen
 from paita.utils.logger import log
 from paita.utils.settings_manager import SettingsManager, SettingsModel
-
-log.configure(handlers=[{"sink": TextualHandler(), "format": "{message}"}])
 
 
 class Role(Enum):
@@ -61,9 +58,11 @@ class ChatApp(App):
         self._current_id: str = "id_0"
 
     def compose(self) -> ComposeResult:
-        yield Header()
+        yield Header(show_clock=True)
         with Container(id="body"):
-            yield VerticalScroll(id="conversation")
+            vertical_scroll: VerticalScroll = VerticalScroll(id="conversation")
+            vertical_scroll.can_focus = False
+            yield vertical_scroll
             with Horizontal(id="input_box"):
                 if TEXT_AREA:
                     yield MultiLineInput(id="multi_line_input", multiline=True)

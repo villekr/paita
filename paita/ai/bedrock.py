@@ -24,13 +24,13 @@ def get_bedrock_client(
     else:
         target_region = region
 
-    # log.debug(f"Create new client\n  Using region: {target_region}")
+    log.debug(f"Create new client\n  Using region: {target_region}")
     session_kwargs = {"region_name": target_region}
     client_kwargs = {**session_kwargs}
 
     profile_name = os.environ.get("AWS_PROFILE")
     if profile_name:
-        # log.debug(f"  Using profile: {profile_name}")
+        log.debug(f"  Using profile: {profile_name}")
         session_kwargs["profile_name"] = profile_name
 
     retry_config = Config(
@@ -50,7 +50,7 @@ def get_bedrock_client(
         response = sts.assume_role(
             RoleArn=str(assumed_role), RoleSessionName="langchain-llm-1"
         )
-        # log.debug(" ... successful!")
+        log.debug(" ... successful!")
         client_kwargs["aws_access_key_id"] = response["Credentials"]["AccessKeyId"]
         client_kwargs["aws_secret_access_key"] = response["Credentials"][
             "SecretAccessKey"

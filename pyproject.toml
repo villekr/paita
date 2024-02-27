@@ -19,6 +19,7 @@ appdirs = "^1.4.4"
 pydantic = "^2.6.1"
 cache3 = "^0.4.3"
 aiofiles = "^23.2.1"
+pyperclip = "^1.8.2"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.1.0"

@@ -2098,6 +2098,16 @@ plugins = ["importlib-metadata"]
 windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
+name = "pyperclip"
+version = "1.8.2"
+description = "A cross-platform clipboard module for Python. (Only handles plain text for now.)"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pyperclip-1.8.2.tar.gz", hash = "sha256:105254a8b04934f0bc84e9c24eb360a591aaf6535c9def5f29d92af107a9bf57"},
+]
+
+[[package]]
 name = "pytest"
 version = "8.0.2"
 description = "pytest: simple powerful testing with Python"
@@ -2675,4 +2685,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "bd79c7ca39576817cbffb99f68dcec07da8b13c6b9c6710926db4affaa7074f1"
+content-hash = "4c423aa1df18f33f654d694dea4a034f71542cbaebd06eb975d5e1aa9f9e9844"
