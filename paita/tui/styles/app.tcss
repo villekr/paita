@@ -10,6 +10,13 @@
     padding: 0 0 0 0;
 }
 
+#conversation:focus {
+    width: 100%;
+    border: white;
+    margin: 1 0 1 0;
+    padding: 0 0 0 0;
+}
+
 #input_box {
     dock: bottom;
     height: auto;
@@ -97,3 +104,10 @@ LoadingIndicator {
     margin: 0 1 0 1;
 }
 
+.markdown:hover {
+    background: $boost;
+}
+
+.markdown:focus {
+    background: $accent;
+}
