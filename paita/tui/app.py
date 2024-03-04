@@ -144,7 +144,7 @@ class ChatApp(App):
 
     def init_chat(self):
         if self._chat is None:
-            self._chat = Chat()
+            self._chat = Chat(app_name=label.APP_TITLE, app_author=label.APP_AUTHOR)
         callback_handler = AsyncHandler()
         callback_handler.register_callbacks(
             self.callback_on_token, self.callback_on_end, self.callback_on_error
