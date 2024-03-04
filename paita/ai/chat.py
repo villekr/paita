@@ -1,5 +1,8 @@
 # from paita.ai.mock_model import MockModel
-from langchain.memory import ChatMessageHistory
+from pathlib import Path
+
+from appdirs import user_config_dir
+from langchain.memory import ChatMessageHistory, FileChatMessageHistory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_community.chat_models import bedrock as br
 from langchain_community.chat_models import openai
@@ -11,14 +14,19 @@ from paita.ai.models import AIService
 from paita.utils.logger import log
 from paita.utils.settings_manager import SettingsModel
 
+HISTORY_FILE_NAME = "chat_history"
+
 
 class Chat:
     """
     Chat capsulates chat history and can use different AI Models
     """
 
-    def __init__(self):
-        self._chat_history = ChatMessageHistory()
+    def __init__(self, *, app_name: str, app_author: str):
+        config_dir = user_config_dir(appname=app_name, appauthor=app_author)
+        file_path = Path(config_dir) / HISTORY_FILE_NAME
+        # self._chat_history = ChatMessageHistory()
+        self._chat_history = FileChatMessageHistory(str(file_path))
         self._model: BaseChatModel = None
         self._settings_model: SettingsModel = None
         self._callback_handler: AsyncHandler = None

@@ -104,10 +104,16 @@ LoadingIndicator {
     margin: 0 1 0 1;
 }
 
-.markdown:hover {
-    background: $boost;
-}
-
 .markdown:focus {
     background: $accent;
+    /*border: tall $accent;*/
 }
+
+.markdown > MarkdownBlock:focus {
+    background: $accent;
+}
+/*
+MarkdownFence:focus {
+    border: hkey $accent;
+}
+*/
