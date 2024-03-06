@@ -9,8 +9,6 @@ from aiofiles import os as aiofiles_os
 from appdirs import user_config_dir
 from pydantic import BaseModel
 
-from paita.utils.logger import log
-
 
 class SettingsBackendType(StrEnum):
     LOCAL = "local"
@@ -24,7 +22,7 @@ class SettingsModel(BaseModel):
     ai_model: Optional[str] = None
     ai_persona: Optional[
         str
-    ] = "You are a helpful assistant. Answer all questions to the best of your ability."  # noqa: E501
+    ] = "You are a helpful assistant. Answer all questions to the best of your ability."  # noqa: B950
     ai_streaming: Optional[bool] = True
     ai_model_kwargs: Optional[Dict[str, Any]] = {}
     ai_n: Optional[int] = 1

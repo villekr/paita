@@ -9,8 +9,6 @@ from textual.timer import Timer
 from textual.widgets import Label, Markdown, Static
 from textual.widgets._markdown import MarkdownBlock, MarkdownBullet, MarkdownFence
 
-from paita.utils.logger import log
-
 ROLE_ABBREVIATIONS = {"question": "Q", "answer": "A", "info": "i", "error": "!"}
 
 
@@ -113,6 +111,10 @@ class MessageContent(Markdown, can_focus=True, can_focus_children=False):
 
     def parse_from_children(self, block: MarkdownBlock, indent_depth: int = -2) -> str:
         children = block.children
+
+        if isinstance(block, MarkdownFence):
+            return block.code
+
         if len(children) > 0:
             text = ""
             for child in children:
@@ -121,11 +123,12 @@ class MessageContent(Markdown, can_focus=True, can_focus_children=False):
         else:
             if isinstance(block, MarkdownBullet):
                 return " " * indent_depth + "- "
-
+            if isinstance(block, MarkdownFence):
+                return block.code
             return str(block.renderable) + "\n"
 
 
-class MessageBox(Horizontal, can_focus=True):
+class MessageBox(Horizontal, can_focus=False):
     CSS_PATH = PurePath(__file__).parent / "styles" / "message_box.tcss"
 
     def __init__(self, data: str, *, role: str) -> None:

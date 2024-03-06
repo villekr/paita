@@ -1,5 +1,6 @@
 from enum import Enum
 from pathlib import PurePath
+from typing import Union
 
 from appdirs import user_config_dir
 from cache3 import DiskCache
@@ -54,8 +55,9 @@ class ChatApp(App):
 
     def __init__(self):
         super().__init__()
-        self._current_message: MessageBox = None
+        self._current_message: Union[MessageBox or None] = None
         self._current_id: str = "id_0"
+        self._last_focused: Union[Widget or None] = None
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)

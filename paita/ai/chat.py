@@ -2,7 +2,7 @@
 from pathlib import Path
 
 from appdirs import user_config_dir
-from langchain.memory import ChatMessageHistory, FileChatMessageHistory
+from langchain.memory import FileChatMessageHistory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_community.chat_models import bedrock as br
 from langchain_community.chat_models import openai
@@ -99,6 +99,11 @@ class Chat:
                 (
                     "system",
                     self._settings_model.ai_persona,
+                    # TODO: the following prompt makes LLM aware that will
+                    #  receive a condensed summary instead of a chat history
+                    # "You are a helpful assistant. Answer all questions to the best of
+                    # your ability. The provided chat history includes facts about the
+                    # user you are speaking with.",
                 ),
                 MessagesPlaceholder(variable_name="chat_history"),
                 ("human", "{input}"),
@@ -130,3 +135,35 @@ class Chat:
                 {"input": data},
                 {"configurable": {"session_id": "unused"}},
             )
+        await self._trim_history(self._settings_model.ai_history_depth)
+
+    async def _trim_history(self, max_length: int = 20):
+        stored_messages = await self._chat_history.aget_messages()
+        if len(stored_messages) <= max_length:
+            return
+
+        await self._chat_history.aclear()
+        await self._chat_history.aadd_messages(stored_messages[-max_length:])
+        stored_messages = await self._chat_history.aget_messages()
+
+    async def _summarize_messages(self, max_length: int = 20):
+        raise NotImplementedError  # TODO: finalize and make async
+        stored_messages = self._chat_history.messages
+        if len(stored_messages) <= 20:
+            return
+        summarization_prompt = ChatPromptTemplate.from_messages(
+            [
+                MessagesPlaceholder(variable_name="chat_history"),
+                (
+                    "user",
+                    "Distill the above chat messages into a single summary message. Include as many specific details as you can.",  # noqa: B950
+                ),
+            ]
+        )
+        summarization_chain = summarization_prompt | self._model
+
+        summary_message = summarization_chain.invoke({"chat_history": stored_messages})
+
+        self._chat_history.clear()
+
+        self._chat_history.add_message(summary_message)
