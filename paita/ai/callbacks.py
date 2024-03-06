@@ -53,9 +53,9 @@ class AsyncHandler(AsyncCallbackHandler):
         metadata: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Any:
-        log.debug(
-            f"{serialized=} {messages=} {run_id=} {parent_run_id=} {tags=} {metadata=}"
-        )
+        # log.debug(
+        #     f"{serialized=} {messages=} {run_id=} {parent_run_id=} {tags=} {metadata=}"  # noqa: B950
+        # )
         pass
 
     async def on_llm_new_token(
@@ -68,7 +68,7 @@ class AsyncHandler(AsyncCallbackHandler):
         tags: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> None:
-        log.debug(f"{token=} {chunk=} {run_id=} {parent_run_id=} {tags=}")
+        # log.debug(f"{token=} {chunk=} {run_id=} {parent_run_id=} {tags=}")
         self.callback_on_token(token)
 
     async def on_llm_end(
@@ -80,7 +80,7 @@ class AsyncHandler(AsyncCallbackHandler):
         tags: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> None:
-        log.debug(f"{response=} {run_id=} {parent_run_id=} {tags=}")
+        # log.debug(f"{response=} {run_id=} {parent_run_id=} {tags=}")
         output = response.flatten().pop().generations.pop().pop().text
         self.callback_on_end(output)
 
@@ -93,5 +93,5 @@ class AsyncHandler(AsyncCallbackHandler):
         tags: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> None:
-        log.debug(f"{error=} {run_id=} {parent_run_id=} {tags=}")
+        log.error(f"{error=} {run_id=} {parent_run_id=} {tags=}")
         self.callback_on_error(error)

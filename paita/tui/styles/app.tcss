@@ -106,7 +106,6 @@ LoadingIndicator {
 
 .markdown:focus {
     background: $accent;
-    /*border: tall $accent;*/
 }
 
 .markdown > MarkdownBlock:focus {
