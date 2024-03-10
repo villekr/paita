@@ -39,6 +39,7 @@ def mock_env(monkeypatch):
     pass
 
 
+@pytest.mark.skip("Needs mocking")
 def test_init_models(chat, settings_model, callback_handler, mock_env):
     chat.init_model(
         settings_model=settings_model,
