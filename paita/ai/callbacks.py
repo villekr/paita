@@ -68,7 +68,7 @@ class AsyncHandler(AsyncCallbackHandler):
         tags: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> None:
-        # log.debug(f"{token=} {chunk=} {run_id=} {parent_run_id=} {tags=}")
+        log.debug(f"{token=} {chunk=} {run_id=} {parent_run_id=} {tags=}")
         self.callback_on_token(token)
 
     async def on_llm_end(
@@ -80,7 +80,7 @@ class AsyncHandler(AsyncCallbackHandler):
         tags: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> None:
-        # log.debug(f"{response=} {run_id=} {parent_run_id=} {tags=}")
+        log.debug(f"{response=} {run_id=} {parent_run_id=} {tags=}")
         output = response.flatten().pop().generations.pop().pop().text
         self.callback_on_end(output)
 

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "paita"
 version = "0.1.0"
-description = "PAITA - Python AI Textual Assistant"
+description = "paita - Python AI Textual Assistant"
 authors = ["villekr <ville.karkkainen@outlook.com>"]
 readme = "README.md"
 
@@ -14,12 +14,16 @@ langchain = "^0.1.11"
 #langchain = { path = "../forks/langchain/libs/langchain", develop = true }
 #langchain-core = { path = "../forks/langchain/libs/core", develop = true }
 #langchain-community = { path = "../forks/langchain/libs/community", develop = true }
+#langchain = { path = "../langchain/libs/langchain", develop = true }
+#langchain-core = { path = "../langchain/libs/core", develop = true }
+#langchain-community = { path = "../langchain/libs/community", develop = true }
 openai = "^1.11.0"
 appdirs = "^1.4.4"
 pydantic = "^2.6.1"
 cache3 = "^0.4.3"
 aiofiles = "^23.2.1"
 pyperclip = "^1.8.2"
+langchain-openai = "^0.0.8"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.1.0"
