@@ -1,6 +1,6 @@
 APP_TITLE = "paita"
 APP_SUBTITLE = "Python AI Textual Assistant"
-APP_AUTHOR = "support@paita.ai"
+APP_AUTHOR = "paita"
 AI_PERSONA_PREFIX = "AI Persona:"
 AI_STREAMING = "Streaming mode"
 AI_MODEL_KWARGS = "Extra arguments to pass to model"

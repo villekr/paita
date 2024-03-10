@@ -2,32 +2,18 @@ import json
 import os.path
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Dict, Optional
 
 import aiofiles
 from aiofiles import os as aiofiles_os
 from appdirs import user_config_dir
-from pydantic import BaseModel
+
+from paita.utils.settings_model import SettingsModel
 
 
 class SettingsBackendType(StrEnum):
     LOCAL = "local"
     AWS_APPCONFIG = "aws_appconfig"
     NONE = "none"
-
-
-class SettingsModel(BaseModel):
-    version: float = 0.1
-    ai_service: Optional[str] = None
-    ai_model: Optional[str] = None
-    ai_persona: Optional[
-        str
-    ] = "You are a helpful assistant. Answer all questions to the best of your ability."  # noqa: B950
-    ai_streaming: Optional[bool] = True
-    ai_model_kwargs: Optional[Dict[str, Any]] = {}
-    ai_n: Optional[int] = 1
-    ai_max_tokens: Optional[int] = 2048
-    ai_history_depth: Optional[int] = 20
 
 
 SETTINGS_FILE_NAME = "settings.json"

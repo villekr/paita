@@ -1,5 +1,9 @@
 # Paita - Python AI Textual Assistant
-<img src="https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/files/python-logo-only.svg">
+<img src="https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/files/python-logo-only.svg" height="20">
+
+🅰️ℹ️
+<img src="https://textual.textualize.io/images/icons/logo%20light%20transparent.svg" height="20">
+🔧
 
 Paita is textual asssistant on your terminal that supports multiple AI Services' Chat Models.
 

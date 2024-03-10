@@ -196,6 +196,7 @@ class ChatApp(App):
             w.disabled = not w.disabled
 
     def callback_on_token(self, data: str):
+        log.debug(f"callback_on_token: {data}")
         if self._current_message is None:
             loading_indication = self.query_one(LoadingIndicator)
             loading_indication.remove()
@@ -206,23 +207,30 @@ class ChatApp(App):
             self._current_message.append(data)
 
     def callback_on_end(self, data: str):
+        log.debug(f"callback_on_end: {data}")
         if self._current_message is None:
+            log.debug("1")
             loading_indication = self.query_one(LoadingIndicator)
             loading_indication.remove()
             self._current_message = MessageBox(data, role="answer")  # noqa: E501
             conversation = self.query_one("#conversation")
             conversation.mount(self._current_message)
 
+        log.debug("2")
         self._current_message.flush()
         self._current_message = None
 
         if TEXT_AREA:
+            log.debug("3")
             text_input = self.query_one("#multi_line_input")
         else:
             text_input = self.query_one("#input")
+        log.debug("4")
         button = self.query_one("#send_button")
         self.toggle_widgets(text_input, button)
+        log.debug("5")
         text_input.focus()
+        log.debug("6")
 
     def callback_on_error(self, error):
         if self._current_message:

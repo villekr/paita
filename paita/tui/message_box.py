@@ -152,9 +152,11 @@ class MessageBox(Horizontal, can_focus=False):
         self._update_timer.resume()
 
     def flush(self):
-        self._update_timer.pause()
+        if self._update_timer:
+            self._update_timer.pause()
         self._markdown_update()
 
     def _markdown_update(self):
-        self._message_content.update(self.data)
+        if self._message_content:
+            self._message_content.update(self.data)
         self.parent.scroll_end(animate=False)

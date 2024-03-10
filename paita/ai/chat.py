@@ -2,19 +2,23 @@
 from pathlib import Path
 
 from appdirs import user_config_dir
-from langchain.memory import FileChatMessageHistory
+from langchain.memory import ChatMessageHistory, FileChatMessageHistory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.schema.output_parser import StrOutputParser
 from langchain_community.chat_models import bedrock as br
-from langchain_community.chat_models import openai
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_openai import ChatOpenAI
 
 from paita.ai.callbacks import AsyncHandler
 from paita.ai.models import AIService
 from paita.utils.logger import log
-from paita.utils.settings_manager import SettingsModel
+from paita.utils.settings_model import SettingsModel
 
 HISTORY_FILE_NAME = "chat_history"
+
+# https://github.com/langchain-ai/langchain/issues/11668
+BEDROCK_DISABLE_STREAMING = True
 
 
 class Chat:
@@ -22,14 +26,17 @@ class Chat:
     Chat capsulates chat history and can use different AI Models
     """
 
-    def __init__(self, *, app_name: str, app_author: str):
+    def __init__(self, *, app_name: str, app_author: str, file_history: bool = True):
         config_dir = user_config_dir(appname=app_name, appauthor=app_author)
         file_path = Path(config_dir) / HISTORY_FILE_NAME
-        # self._chat_history = ChatMessageHistory()
-        self._chat_history = FileChatMessageHistory(str(file_path))
+        if file_history:
+            self._chat_history = FileChatMessageHistory(str(file_path))
+        else:
+            self._chat_history = ChatMessageHistory()
         self._model: BaseChatModel = None
         self._settings_model: SettingsModel = None
         self._callback_handler: AsyncHandler = None
+        self.parser: StrOutputParser = StrOutputParser()
 
     def init_model(
         self,
@@ -42,7 +49,7 @@ class Chat:
 
         if settings_model.ai_service == AIService.AWSBedRock.value:
             model_kwargs = {
-                "max_tokens_to_sample": self._settings_model.ai_max_tokens,
+                # "max_tokens_to_sample": self._settings_model.ai_max_tokens,
                 "temperature": 1,
                 "top_k": 250,
                 "top_p": 0.8,
@@ -53,11 +60,16 @@ class Chat:
             log.debug(f"{model_kwargs=}")
             self._model = br.BedrockChat(
                 model_id=settings_model.ai_model,
-                streaming=self._settings_model.ai_streaming,
+                streaming=(
+                    False
+                    if BEDROCK_DISABLE_STREAMING
+                    else self._settings_model.ai_streaming
+                ),
                 model_kwargs=model_kwargs,
                 # max_tokens=settings_model.ai_max_tokens,
                 # n=settings_model.ai_n,
                 callbacks=[callback_handler],
+                # callback_manager=callback_handler,
             )
         elif settings_model.ai_service == AIService.OpenAIChatGPT.value:
             model_kwargs = {
@@ -74,7 +86,7 @@ class Chat:
                     temperature = int(model_kwargs["temperature"])
                     del model_kwargs["temperature"]
             log.debug(f"{model_kwargs=}")
-            self._model = openai.ChatOpenAI(
+            self._model = ChatOpenAI(
                 model_name=settings_model.ai_model,
                 streaming=settings_model.ai_streaming,
                 model_kwargs=model_kwargs,
@@ -82,6 +94,7 @@ class Chat:
                 temperature=temperature,
                 # n=settings_model.ai_n,
                 callbacks=[callback_handler],
+                # callback_manager=callback_handler,
             )
         # elif ai_service == AIService.Mock:
         #     self._model = MockModel(
@@ -110,8 +123,8 @@ class Chat:
             ]
         )
 
-        if self._settings_model.ai_streaming:
-            chain = prompt | self._model
+        if self._settings_model.ai_streaming and not BEDROCK_DISABLE_STREAMING:
+            chain = prompt | self._model | self.parser
             chain_with_message_history = RunnableWithMessageHistory(
                 chain,
                 lambda session_id: self._chat_history,
@@ -124,7 +137,7 @@ class Chat:
             ):
                 pass
         else:
-            chain = prompt | self._model
+            chain = prompt | self._model | self.parser
             chain_with_message_history = RunnableWithMessageHistory(
                 chain,
                 lambda session_id: self._chat_history,
