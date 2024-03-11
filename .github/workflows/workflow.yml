@@ -26,10 +26,13 @@ jobs:
 #        with:
 #          path: ./.venv
 #          key: venv-${{ hashFiles('poetry.lock') }}
-      - name: Python install dependencies and run flake8, isort and black checks
+      - name: Install dependencies
         working-directory: .
         run: |
           poetry install
+      - name: Run flake8, isort and black checks
+        working-directory: .
+        run: |
           poetry run flake8 .
           poetry run isort --check .
           poetry run black --check .
