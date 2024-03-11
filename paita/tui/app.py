@@ -267,6 +267,10 @@ class ChatApp(App):
         return self._current_id
 
 
-if __name__ == "__main__":
+def main():
     app = ChatApp()
     app.run()
+
+
+if __name__ == "__main__":
+    main()

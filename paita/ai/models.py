@@ -10,7 +10,7 @@ from paita.utils.asyncify import asyncify
 from paita.utils.logger import log
 
 
-async def list_models(ai_service: AIService = AIService.AWSBedRock):
+async def list_models(ai_service: str = AIService.AWSBedRock.value):
     if ai_service == AIService.AWSBedRock.value:
         return await bedrock_models()
     elif ai_service == AIService.OpenAIChatGPT.value:
@@ -24,12 +24,13 @@ async def list_models(ai_service: AIService = AIService.AWSBedRock):
         raise ValueError(f"Invalid value for {ai_service=}")
 
 
-async def list_all_models() -> Dict[AIService, List[str] or None]:
+async def list_all_models() -> Dict[str, List[str] or None]:
     services = [service.value for service in AIService]
-    tasks = [list_models(service) for service in AIService]
+    tasks = [list_models(service) for service in services]
     responses: [[str] or None] = await asyncio.gather(*tasks)
-    response: Dict[AIService, List[str]] = {
-        service: response for service, response in zip(services, responses, strict=True)
+    response: Dict[str, List[str]] = {
+        service: response
+        for service, response in zip(services, responses)  # noqa: B905
     }
     log.debug(f"{response=}")
     return response

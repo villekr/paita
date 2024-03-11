@@ -6,14 +6,15 @@ on: [push, pull_request]
 #      - main
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: '3.8.1'
+          cache: 'pip' # caching pip dependencies
       - name: Setup Poetry
         uses: abatilo/actions-poetry@v2
 #      - name: Setup Python venv
@@ -25,10 +26,13 @@ jobs:
 #        with:
 #          path: ./.venv
 #          key: venv-${{ hashFiles('poetry.lock') }}
-      - name: Python install dependencies and run flake8, isort and black checks
+      - name: Install dependencies
         working-directory: .
         run: |
           poetry install
+      - name: Run flake8, isort and black checks
+        working-directory: .
+        run: |
           poetry run flake8 .
           poetry run isort --check .
           poetry run black --check .
