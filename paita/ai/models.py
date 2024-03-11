@@ -29,7 +29,8 @@ async def list_all_models() -> Dict[str, List[str] or None]:
     tasks = [list_models(service) for service in services]
     responses: [[str] or None] = await asyncio.gather(*tasks)
     response: Dict[str, List[str]] = {
-        service: response for service, response in zip(services, responses)  # B905
+        service: response
+        for service, response in zip(services, responses)  # noqa: B905
     }
     log.debug(f"{response=}")
     return response
