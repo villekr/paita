@@ -1,6 +1,6 @@
 import json
 import os.path
-from enum import StrEnum
+from enum import Enum
 from pathlib import Path
 
 import aiofiles
@@ -10,7 +10,7 @@ from appdirs import user_config_dir
 from paita.utils.settings_model import SettingsModel
 
 
-class SettingsBackendType(StrEnum):
+class SettingsBackendType(Enum):
     LOCAL = "local"
     AWS_APPCONFIG = "aws_appconfig"
     NONE = "none"
