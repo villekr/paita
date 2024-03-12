@@ -15,19 +15,19 @@ RUN ln -s /usr/bin/python3.11 /usr/bin/python && \
     ln -s /usr/bin/pip3.11 /usr/bin/pip
 
 # Install required dependencies
-RUN yum update -y && \
-    yum install -y yum-utils device-mapper-persistent-data lvm2
+#RUN yum update -y && \
+#    yum install -y yum-utils device-mapper-persistent-data lvm2
 
 # Install Docker
-RUN yum install docker -y
+RUN #yum install docker -y
+
+RUN yum install -y make
+RUN yum update -y && \
+    yum install -y gcc python3-devel
 
 RUN curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.7.1 python3 -
 ENV PATH="${PATH}:/root/.local/bin"
 RUN poetry install --with dev,lint,typing,test,test_integration
-
-RUN yum install -y make
-RUN yum update -y && \
-    yum install -y gcc python3-devel \
 
 WORKDIR langchain
 

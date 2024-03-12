@@ -36,6 +36,8 @@ jobs:
           poetry run flake8 .
           poetry run isort --check .
           poetry run black --check .
+#      - name: Run mypy
+#        run: poetry run mypy paita --explicit-package-bases
       - name: Run Tests
         run: poetry run pytest --cov-report=xml
 #      - name: Upload Coverage to Codecov
