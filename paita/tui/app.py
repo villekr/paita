@@ -12,6 +12,7 @@ from textual.widgets import Button, Footer, Header, Input, LoadingIndicator
 import paita.localization.labels as label
 from paita.ai.callbacks import AsyncHandler
 from paita.ai.chat import Chat
+from paita.ai.chat_history import ChatHistory
 from paita.ai.enums import Tag
 from paita.ai.models import list_all_models
 from paita.tui.error_screen import ErrorScreen
@@ -48,7 +49,6 @@ class ChatApp(App):
         ("ctrl+x", "clear", "Clear"),
         ("ctrl+1", "settings", "Settings"),
     ]
-
     _settings: SettingsManager = None
     _chat: Chat = None
     _cache: DiskCache = DiskCache(CACHE_DIR, CACHE_NAME)
@@ -58,6 +58,10 @@ class ChatApp(App):
         self._current_message: Union[MessageBox or None] = None
         self._current_id: str = "id_0"
         self._last_focused: Union[Widget or None] = None
+
+        self._chat_history = ChatHistory(
+            app_name=label.APP_TITLE, app_author=label.APP_AUTHOR
+        )
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
@@ -110,26 +114,12 @@ class ChatApp(App):
             self.init_chat()
 
     async def on_mount(self) -> None:
-        # List all models from each supported AI Service
-        # Add to cache: the models only from the AI Services that env has access to
-        self.push_screen(WaitScreen(label.APP_LIST_AI_SERVICES_MODELS))
-        models = await list_all_models()
-        self.pop_screen()
-        not_none_ai_models = any(value is not None for value in models.values())
-        if not not_none_ai_models:
-            self.push_screen(
-                ErrorScreen(
-                    label.APP_ERROR_NO_AI_SERVICES_OR_MODELS,
-                    label.APP_DIALOG_BUTTON_EXIT,
-                ),
-                self.exit,
-            )
-            return
-
-        for key in models.keys():
-            if models[key]:
-                self._cache.set(key, models[key], CACHE_TTL, tag=Tag.AI_MODELS.value)
-
+        # TODO: If history is loaded here then scroll to end works
+        # however input area text doesn't work properly
+        # when calling _mount_chat_history later then text input works but scroll not
+        # await self._mount_chat_history()
+        await self._list_models()
+        await self._mount_chat_history()
         # Read existing settings or open settings screen
         try:
             self._settings: SettingsManager = await SettingsManager.load(
@@ -146,7 +136,7 @@ class ChatApp(App):
 
     def init_chat(self):
         if self._chat is None:
-            self._chat = Chat(app_name=label.APP_TITLE, app_author=label.APP_AUTHOR)
+            self._chat = Chat()
         callback_handler = AsyncHandler()
         callback_handler.register_callbacks(
             self.callback_on_token, self.callback_on_end, self.callback_on_error
@@ -185,9 +175,10 @@ class ChatApp(App):
             MessageBox(question, role="question"),
             LoadingIndicator(),
         )
+        conversation.scroll_end(animate=False)
 
         try:
-            await self._chat.request(question)
+            await self._chat.request(question, chat_history=self._chat_history)
         except Exception as e:
             log.exception(e)
 
@@ -196,7 +187,7 @@ class ChatApp(App):
             w.disabled = not w.disabled
 
     def callback_on_token(self, data: str):
-        log.debug(f"callback_on_token: {data}")
+        # log.debug(f"callback_on_token: {data}")
         if self._current_message is None:
             loading_indication = self.query_one(LoadingIndicator)
             loading_indication.remove()
@@ -207,30 +198,24 @@ class ChatApp(App):
             self._current_message.append(data)
 
     def callback_on_end(self, data: str):
-        log.debug(f"callback_on_end: {data}")
+        # log.debug(f"callback_on_end: {data}")
+        conversation = self.query_one("#conversation")
         if self._current_message is None:
-            log.debug("1")
             loading_indication = self.query_one(LoadingIndicator)
             loading_indication.remove()
             self._current_message = MessageBox(data, role="answer")  # noqa: E501
-            conversation = self.query_one("#conversation")
             conversation.mount(self._current_message)
 
-        log.debug("2")
         self._current_message.flush()
         self._current_message = None
 
         if TEXT_AREA:
-            log.debug("3")
             text_input = self.query_one("#multi_line_input")
         else:
             text_input = self.query_one("#input")
-        log.debug("4")
         button = self.query_one("#send_button")
         self.toggle_widgets(text_input, button)
-        log.debug("5")
         text_input.focus()
-        log.debug("6")
 
     def callback_on_error(self, error):
         if self._current_message:
@@ -265,6 +250,37 @@ class ChatApp(App):
         token += 1
         self._current_id = f"id_{token}"
         return self._current_id
+
+    async def _mount_chat_history(self):
+        messages = await self._chat_history.messages()
+        message_boxes: [MessageBox] = [
+            MessageBox(data=message.content, role=message.role.value)
+            for message in messages
+        ]
+        conversation = self.query_one("#conversation")
+        await conversation.mount_all(message_boxes)
+        conversation.scroll_end(animate=False)
+
+    async def _list_models(self):
+        # List all models from each supported AI Service
+        # Add to cache: the models only from the AI Services that env has access to
+        self.push_screen(WaitScreen(label.APP_LIST_AI_SERVICES_MODELS))
+        models = await list_all_models()
+        self.pop_screen()
+        not_none_ai_models = any(value is not None for value in models.values())
+        if not not_none_ai_models:
+            self.push_screen(
+                ErrorScreen(
+                    label.APP_ERROR_NO_AI_SERVICES_OR_MODELS,
+                    label.APP_DIALOG_BUTTON_EXIT,
+                ),
+                self.exit,
+            )
+            return
+
+        for key in models.keys():
+            if models[key]:
+                self._cache.set(key, models[key], CACHE_TTL, tag=Tag.AI_MODELS.value)
 
 
 def main():

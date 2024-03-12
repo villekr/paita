@@ -32,7 +32,7 @@ async def list_all_models() -> Dict[str, List[str] or None]:
         service: response
         for service, response in zip(services, responses)  # noqa: B905
     }
-    log.debug(f"{response=}")
+    # log.debug(f"{response=}")
     return response
 
 
@@ -43,7 +43,7 @@ def bedrock_models() -> [str] or None:
         response = bedrock_client.list_foundation_models(byOutputModality="TEXT")
         return [model["modelId"] for model in response["modelSummaries"]]
     except Exception as e:
-        log.exception(e)
+        log.info(e)
         return None
 
 
@@ -54,7 +54,7 @@ def openai_models() -> [str] or None:
         response: [Model] = openai_client.models.list()
         return [model.id for model in response.data]
     except Exception as e:
-        log.exception(e)
+        log.info(e)
         return None
 
 

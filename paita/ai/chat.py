@@ -1,8 +1,6 @@
 # from paita.ai.mock_model import MockModel
-from pathlib import Path
+import os
 
-from appdirs import user_config_dir
-from langchain.memory import ChatMessageHistory, FileChatMessageHistory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.output_parser import StrOutputParser
 from langchain_community.chat_models import bedrock as br
@@ -11,14 +9,16 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_openai import ChatOpenAI
 
 from paita.ai.callbacks import AsyncHandler
+from paita.ai.chat_history import ChatHistory
 from paita.ai.models import AIService
-from paita.utils.logger import log
+
+# from paita.utils.logger import log
 from paita.utils.settings_model import SettingsModel
 
 HISTORY_FILE_NAME = "chat_history"
 
 # https://github.com/langchain-ai/langchain/issues/11668
-BEDROCK_DISABLE_STREAMING = True
+BEDROCK_DISABLE_STREAMING = bool(os.getenv("BEDROCK_DISABLE_STREAMING", True))
 
 
 class Chat:
@@ -26,13 +26,7 @@ class Chat:
     Chat capsulates chat history and can use different AI Models
     """
 
-    def __init__(self, *, app_name: str, app_author: str, file_history: bool = True):
-        config_dir = user_config_dir(appname=app_name, appauthor=app_author)
-        file_path = Path(config_dir) / HISTORY_FILE_NAME
-        if file_history:
-            self._chat_history = FileChatMessageHistory(str(file_path))
-        else:
-            self._chat_history = ChatMessageHistory()
+    def __init__(self):
         self._model: BaseChatModel = None
         self._settings_model: SettingsModel = None
         self._callback_handler: AsyncHandler = None
@@ -57,14 +51,15 @@ class Chat:
             }
             if self._settings_model.ai_model_kwargs:
                 model_kwargs.update(self._settings_model.ai_model_kwargs)
-            log.debug(f"{model_kwargs=}")
+            # log.debug(f"{model_kwargs=}")
             self._model = br.BedrockChat(
                 model_id=settings_model.ai_model,
-                streaming=(
-                    False
-                    if BEDROCK_DISABLE_STREAMING
-                    else self._settings_model.ai_streaming
-                ),
+                # streaming=(
+                #     False
+                #     if BEDROCK_DISABLE_STREAMING
+                #     else self._settings_model.ai_streaming
+                # ),
+                streaming=self._settings_model.ai_streaming,
                 model_kwargs=model_kwargs,
                 # max_tokens=settings_model.ai_max_tokens,
                 # n=settings_model.ai_n,
@@ -85,7 +80,7 @@ class Chat:
                 if "temperature" in model_kwargs.keys():
                     temperature = int(model_kwargs["temperature"])
                     del model_kwargs["temperature"]
-            log.debug(f"{model_kwargs=}")
+            # log.debug(f"{model_kwargs=}")
             self._model = ChatOpenAI(
                 model_name=settings_model.ai_model,
                 streaming=settings_model.ai_streaming,
@@ -106,7 +101,7 @@ class Chat:
         else:
             raise ValueError("engine_type not defined")
 
-    async def request(self, data: str) -> str:
+    async def request(self, data: str, *, chat_history: ChatHistory) -> str:
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
@@ -127,7 +122,7 @@ class Chat:
             chain = prompt | self._model | self.parser
             chain_with_message_history = RunnableWithMessageHistory(
                 chain,
-                lambda session_id: self._chat_history,
+                lambda session_id: chat_history.history,
                 input_messages_key="input",
                 history_messages_key="chat_history",
             )
@@ -140,7 +135,7 @@ class Chat:
             chain = prompt | self._model | self.parser
             chain_with_message_history = RunnableWithMessageHistory(
                 chain,
-                lambda session_id: self._chat_history,
+                lambda session_id: chat_history.history,
                 input_messages_key="input",
                 history_messages_key="chat_history",
             )
@@ -148,20 +143,23 @@ class Chat:
                 {"input": data},
                 {"configurable": {"session_id": "unused"}},
             )
-        await self._trim_history(self._settings_model.ai_history_depth)
+        await self._trim_history(
+            chat_history, max_length=self._settings_model.ai_history_depth
+        )
 
-    async def _trim_history(self, max_length: int = 20):
-        stored_messages = await self._chat_history.aget_messages()
+    async def _trim_history(self, chat_history: ChatHistory, *, max_length: int = 20):
+        stored_messages = await chat_history.history.aget_messages()
         if len(stored_messages) <= max_length:
             return
 
-        await self._chat_history.aclear()
-        await self._chat_history.aadd_messages(stored_messages[-max_length:])
-        stored_messages = await self._chat_history.aget_messages()
+        await chat_history.history.aclear()
+        await chat_history.history.aadd_messages(stored_messages[-max_length:])
 
-    async def _summarize_messages(self, max_length: int = 20):
+    async def _summarize_messages(
+        self, chat_history: ChatHistory, *, max_length: int = 20
+    ):
         raise NotImplementedError  # TODO: finalize and make async
-        stored_messages = self._chat_history.messages
+        stored_messages = chat_history.history.messages
         if len(stored_messages) <= 20:
             return
         summarization_prompt = ChatPromptTemplate.from_messages(
@@ -177,6 +175,6 @@ class Chat:
 
         summary_message = summarization_chain.invoke({"chat_history": stored_messages})
 
-        self._chat_history.clear()
+        chat_history.history.clear()
 
-        self._chat_history.add_message(summary_message)
+        chat_history.history.add_message(summary_message)
