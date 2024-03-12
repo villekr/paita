@@ -29,7 +29,7 @@ class SettingsScreen(ModalScreen[bool]):
         super().__init__()
         self._settings: SettingsManager = settings
         self._model: SettingsModel = settings.model.model_copy()
-        log.debug(f"{self._model=}")
+        # log.debug(f"{self._model=}")
         self._cache: DiskCache = cache
         self._allow_cancel: bool = allow_cancel
 
@@ -168,7 +168,7 @@ class SettingsScreen(ModalScreen[bool]):
                 model.ai_history_depth = str_to_num(value)
             model.ai_streaming = self.query_one("#ai_streaming").value
 
-            log.debug(f"{model=}")
+            # log.debug(f"{model=}")
             self._settings.model = model
             await self._settings.save()
             self.dismiss(True)

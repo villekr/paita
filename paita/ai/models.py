@@ -32,7 +32,7 @@ async def list_all_models() -> Dict[str, List[str] or None]:
         service: response
         for service, response in zip(services, responses)  # noqa: B905
     }
-    log.debug(f"{response=}")
+    # log.debug(f"{response=}")
     return response
 
 

@@ -57,7 +57,7 @@ class Chat:
             }
             if self._settings_model.ai_model_kwargs:
                 model_kwargs.update(self._settings_model.ai_model_kwargs)
-            log.debug(f"{model_kwargs=}")
+            # log.debug(f"{model_kwargs=}")
             self._model = br.BedrockChat(
                 model_id=settings_model.ai_model,
                 streaming=(
@@ -85,7 +85,7 @@ class Chat:
                 if "temperature" in model_kwargs.keys():
                     temperature = int(model_kwargs["temperature"])
                     del model_kwargs["temperature"]
-            log.debug(f"{model_kwargs=}")
+            # log.debug(f"{model_kwargs=}")
             self._model = ChatOpenAI(
                 model_name=settings_model.ai_model,
                 streaming=settings_model.ai_streaming,
