@@ -54,7 +54,7 @@ class AsyncHandler(AsyncCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         # log.debug(
-        #     f"{serialized=} {messages=} {run_id=} {parent_run_id=} {tags=} {metadata=}"  # noqa: B950
+        #     f"{serialized=} {messages=} {run_id=} {parent_run_id=} {tags=} {metadata=}"
         # )
         pass
 

@@ -12,7 +12,7 @@ def from_str(value: str or None, ttype: Any) -> Union[Any or None]:
 
 
 def str_to_num(value: Union[int, float, str]) -> Union[int, float, str]:
-    if isinstance(value, int) or isinstance(value, float):
+    if isinstance(value, (float, int)):
         return value
     elif isinstance(value, str):
         try:

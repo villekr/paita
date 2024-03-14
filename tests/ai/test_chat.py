@@ -21,22 +21,21 @@ def mock_callback(*args, **kwargs):
     pass
 
 
-@pytest.fixture()
+@pytest.fixture
 def chat() -> Chat:
     return Chat(app_name="paita_unit_test", app_author="test", file_history=False)
 
 
-@pytest.fixture()
+@pytest.fixture
 def callback_handler() -> AsyncHandler:
     callback_handler = AsyncHandler()
     callback_handler.register_callbacks(mock_callback, mock_callback, mock_callback)
     return callback_handler
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_env(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "SOMETHING")
-    pass
 
 
 @pytest.mark.skip("Needs mocking")

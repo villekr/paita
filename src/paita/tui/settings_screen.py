@@ -138,7 +138,7 @@ class SettingsScreen(ModalScreen[bool]):
         if event.control.id == "ai_service":
             models = self._cache.get(event.value, Select.BLANK, tag=Tag.AI_MODELS.value)
             widget: Select = self.query_one("#ai_model")
-            widget.set_options(((item, item) for item in models))
+            widget.set_options((item, item) for item in models)
         elif event.control.id == "ai_model":
             self.query_one("#apply").disabled = False
         else:

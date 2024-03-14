@@ -167,7 +167,7 @@ class Chat:
                 MessagesPlaceholder(variable_name="chat_history"),
                 (
                     "user",
-                    "Distill the above chat messages into a single summary message. Include as many specific details as you can.",  # noqa: B950
+                    "Distill the above chat messages into a single summary message. Include as many specific details as you can.",
                 ),
             ]
         )

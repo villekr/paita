@@ -191,7 +191,7 @@ class ChatApp(App):
         if self._current_message is None:
             loading_indication = self.query_one(LoadingIndicator)
             loading_indication.remove()
-            self._current_message = MessageBox(data, role="answer")  # noqa: E501
+            self._current_message = MessageBox(data, role="answer")
             conversation = self.query_one("#conversation")
             conversation.mount(self._current_message)
         else:
@@ -203,7 +203,7 @@ class ChatApp(App):
         if self._current_message is None:
             loading_indication = self.query_one(LoadingIndicator)
             loading_indication.remove()
-            self._current_message = MessageBox(data, role="answer")  # noqa: E501
+            self._current_message = MessageBox(data, role="answer")
             conversation.mount(self._current_message)
 
         self._current_message.flush()
