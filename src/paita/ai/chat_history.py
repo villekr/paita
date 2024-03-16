@@ -1,4 +1,4 @@
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from langchain.memory import ChatMessageHistory, FileChatMessageHistory
 from langchain_core.chat_history import AIMessage, BaseChatMessageHistory
@@ -6,6 +6,10 @@ from langchain_core.chat_history import AIMessage, BaseChatMessageHistory
 from paita.ai.enums import Role
 from paita.ai.message import Message
 from paita.utils.config_dirs import compose_path
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
 
 HISTORY_FILE_NAME = "chat_history"
 
@@ -16,9 +20,7 @@ class ChatHistory:
     """
 
     def __init__(self, *, app_name: str, app_author: str, file_history: bool = True):
-        file_path: Path = compose_path(
-            HISTORY_FILE_NAME, app_name=app_name, app_author=app_author
-        )
+        file_path: Path = compose_path(HISTORY_FILE_NAME, app_name=app_name, app_author=app_author)
         self.history: BaseChatMessageHistory = None
         if file_history:
             self.history = FileChatMessageHistory(str(file_path))

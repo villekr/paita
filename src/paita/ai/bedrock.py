@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: MIT-0
 """Helper utilities for working with Amazon Bedrock from Python notebooks"""
 # Python Built-Ins:
+from __future__ import annotations
+
 import os
 from typing import Optional
 
@@ -13,16 +15,12 @@ from paita.utils.logger import log
 
 
 def get_bedrock_client(
+    *,
     assumed_role: Optional[str] = None,
     region: Optional[str] = None,
     runtime: Optional[bool] = True,
 ):
-    if region is None:
-        target_region = os.environ.get(
-            "AWS_REGION", os.environ.get("AWS_DEFAULT_REGION")
-        )
-    else:
-        target_region = region
+    target_region = os.environ.get("AWS_REGION", os.environ.get("AWS_DEFAULT_REGION")) if region is None else region
 
     log.debug(f"Create new client\n  Using region: {target_region}")
     session_kwargs = {"region_name": target_region}
@@ -47,22 +45,11 @@ def get_bedrock_client(
     if assumed_role:
         log.debug(f"  Using role: {assumed_role}", end="")
         sts = session.client("sts")
-        response = sts.assume_role(
-            RoleArn=str(assumed_role), RoleSessionName="langchain-llm-1"
-        )
+        response = sts.assume_role(RoleArn=str(assumed_role), RoleSessionName="langchain-llm-1")
         log.debug(" ... successful!")
         client_kwargs["aws_access_key_id"] = response["Credentials"]["AccessKeyId"]
-        client_kwargs["aws_secret_access_key"] = response["Credentials"][
-            "SecretAccessKey"
-        ]
+        client_kwargs["aws_secret_access_key"] = response["Credentials"]["SecretAccessKey"]
         client_kwargs["aws_session_token"] = response["Credentials"]["SessionToken"]
-    if runtime:
-        service_name = "bedrock-runtime"
-    else:
-        service_name = "bedrock"
+    service_name = "bedrock-runtime" if runtime else "bedrock"
 
-    bedrock_client = session.client(
-        service_name=service_name, config=retry_config, **client_kwargs
-    )
-
-    return bedrock_client
+    return session.client(service_name=service_name, config=retry_config, **client_kwargs)

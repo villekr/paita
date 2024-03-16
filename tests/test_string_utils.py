@@ -32,7 +32,7 @@ def test_str_to_dict_invalid():
         "top_p": 0.95,
     }
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Invalid key-value pair"):
         str_to_dict(invalid_2)
 
     assert str_to_dict(invalid_3) == {

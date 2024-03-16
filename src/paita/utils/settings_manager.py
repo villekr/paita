@@ -46,22 +46,17 @@ class SettingsManager:
         backend_type: SettingsBackendType = SettingsBackendType.LOCAL,
     ) -> "SettingsManager":
         if backend_type == SettingsBackendType.LOCAL:
-            model: SettingsModel = await cls._load_and_parse(
-                app_name=app_name, app_author=app_author
-            )
+            model: SettingsModel = await cls._load_and_parse(app_name=app_name, app_author=app_author)
             return SettingsManager(
                 model=model,
                 app_name=app_name,
                 app_author=app_author,
                 backend_type=backend_type,
             )
-        else:
-            raise NotImplementedError
+        raise NotImplementedError
 
     async def save(self):
-        await self._dump_and_save(
-            self.model, app_name=self._app_name, app_author=self._app_author
-        )
+        await self._dump_and_save(self.model, app_name=self._app_name, app_author=self._app_author)
 
     @classmethod
     async def delete(cls, *, app_name: str, app_author: str):
@@ -83,9 +78,7 @@ class SettingsManager:
             return model
 
     @classmethod
-    async def _dump_and_save(
-        cls, model: SettingsModel, *, app_name: str, app_author: str
-    ):
+    async def _dump_and_save(cls, model: SettingsModel, *, app_name: str, app_author: str):
         config_dir = user_config_dir(appname=app_name, appauthor=app_author)
         file_path = Path(config_dir) / SETTINGS_FILE_NAME
 

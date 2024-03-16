@@ -1,20 +1,22 @@
+from __future__ import annotations
+
 import json
 import re
-from typing import Any, Union
+from typing import Any
 
 
-def to_str(value: Any) -> Union[str or None]:
+def to_str(value: Any) -> str | None:
     return str(value) if value else None
 
 
-def from_str(value: str or None, ttype: Any) -> Union[Any or None]:
+def from_str(value: str or None) -> Any | None:
     return str(value) if str else ""
 
 
-def str_to_num(value: Union[int, float, str]) -> Union[int, float, str]:
+def str_to_num(value: float | str) -> float | str:
     if isinstance(value, (float, int)):
         return value
-    elif isinstance(value, str):
+    if isinstance(value, str):
         try:
             result = int(value)
         except ValueError:
@@ -23,8 +25,8 @@ def str_to_num(value: Union[int, float, str]) -> Union[int, float, str]:
             except ValueError:
                 result = value
         return result
-    else:
-        raise ValueError(f"Invalid type {type(value)}")
+    msg = f"Invalid type {type(value)}"
+    raise TypeError(msg)
 
 
 def str_to_dict(value: str) -> dict:
@@ -35,7 +37,8 @@ def str_to_dict(value: str) -> dict:
         if "=" in kv:
             key, value_str = kv.split("=")
             if not key or not value_str:
-                raise ValueError(f"Invalid key-value pair: {kv}")
+                msg = "Invalid key-value pair"
+                raise ValueError(msg)
             result[key] = str_to_num(value_str)
 
     return result
@@ -43,15 +46,14 @@ def str_to_dict(value: str) -> dict:
 
 def dict_to_str(value: dict) -> str:
     if not isinstance(value, dict):
-        raise TypeError("Input must be a dictionary")
+        msg = "Input must be a dictionary"
+        raise TypeError(msg)
 
     sorted_items = sorted(value.items())
 
     def is_nested(d):
         return any(isinstance(v, dict) for v in d.values())
 
-    filtered_items = [
-        (key, val) for key, val in sorted_items if not is_nested({key: val})
-    ]
+    filtered_items = [(key, val) for key, val in sorted_items if not is_nested({key: val})]
 
     return ",".join(f"{key}={json.dumps(val)}" for key, val in filtered_items)

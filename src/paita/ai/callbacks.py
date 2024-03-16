@@ -1,11 +1,5 @@
-from typing import Any, Dict, List, Optional, Union
-from uuid import UUID
-
 from langchain.callbacks.base import AsyncCallbackHandler, BaseCallbackHandler
-from langchain.schema.messages import BaseMessage
-from langchain.schema.output import ChatGenerationChunk, GenerationChunk, LLMResult
-
-from paita.utils.logger import log
+from langchain.schema.output import LLMResult
 
 
 class SyncHandler(BaseCallbackHandler):
@@ -16,11 +10,11 @@ class SyncHandler(BaseCallbackHandler):
         self.callback_on_token = callback_on_token
         self.callback_on_end = callback_on_end
 
-    def on_llm_new_token(self, token: str, **kwargs: Any) -> None:
+    def on_llm_new_token(self, token: str) -> None:
         self.callback_on_token(token)
 
-    def on_llm_end(self, response: LLMResult, **kwargs: Any) -> None:
-        self.callback_on_end()
+    def on_llm_end(self, response: LLMResult) -> None:
+        self.callback_on_end(response)
 
 
 class AsyncHandler(AsyncCallbackHandler):
@@ -42,31 +36,32 @@ class AsyncHandler(AsyncCallbackHandler):
         self.callback_on_error = callback_on_error
 
     # From base class
-    async def on_chat_model_start(
-        self,
-        serialized: Dict[str, Any],
-        messages: List[List[BaseMessage]],
-        *,
-        run_id: UUID,
-        parent_run_id: Optional[UUID] = None,
-        tags: Optional[List[str]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-        **kwargs: Any,
-    ) -> Any:
-        # log.debug(
-        #     f"{serialized=} {messages=} {run_id=} {parent_run_id=} {tags=} {metadata=}"
-        # )
-        pass
+    # async def on_chat_model_start(
+    #     self,
+    #     serialized: Dict[str, Any],
+    #     messages: List[List[BaseMessage]],
+    #     *,
+    #     run_id: UUID,
+    #     parent_run_id: Optional[UUID] = None,
+    #     tags: Optional[List[str]] = None,
+    #     metadata: Optional[Dict[str, Any]] = None,
+    #     **kwargs: Any,
+    # ) -> Any:
+    #     # log.debug(
+    #     #     f"{serialized=} {messages=} {run_id=} {parent_run_id=} {tags=} {metadata=}"
+    #     # )
+    #     pass
 
     async def on_llm_new_token(
         self,
         token: str,
-        *,
-        chunk: Optional[Union[GenerationChunk, ChatGenerationChunk]] = None,
-        run_id: UUID,
-        parent_run_id: Optional[UUID] = None,
-        tags: Optional[List[str]] = None,
-        **kwargs: Any,
+        # *,
+        # chunk: Optional[Union[GenerationChunk, ChatGenerationChunk]] = None,
+        # run_id: UUID,
+        # parent_run_id: Optional[UUID] = None,
+        # tags: Optional[List[str]] = None,
+        # **kwargs: Any,
+        **kwargs,  # noqa: ARG002
     ) -> None:
         # log.debug(f"{token=} {chunk=} {run_id=} {parent_run_id=} {tags=}")
         self.callback_on_token(token)
@@ -74,11 +69,12 @@ class AsyncHandler(AsyncCallbackHandler):
     async def on_llm_end(
         self,
         response: LLMResult,
-        *,
-        run_id: UUID,
-        parent_run_id: Optional[UUID] = None,
-        tags: Optional[List[str]] = None,
-        **kwargs: Any,
+        # *,
+        # run_id: UUID,
+        # parent_run_id: Optional[UUID] = None,
+        # tags: Optional[List[str]] = None,
+        # **kwargs: Any,
+        **kwargs,  # noqa: ARG002
     ) -> None:
         # log.debug(f"{response=} {run_id=} {parent_run_id=} {tags=}")
         output = response.flatten().pop().generations.pop().pop().text
@@ -87,11 +83,12 @@ class AsyncHandler(AsyncCallbackHandler):
     async def on_llm_error(
         self,
         error: BaseException,
-        *,
-        run_id: UUID,
-        parent_run_id: Optional[UUID] = None,
-        tags: Optional[List[str]] = None,
-        **kwargs: Any,
+        # *,
+        # run_id: UUID,
+        # parent_run_id: Optional[UUID] = None,
+        # tags: Optional[List[str]] = None,
+        # **kwargs: Any,
+        **kwargs,  # noqa: ARG002
     ) -> None:
-        log.error(f"{error=} {run_id=} {parent_run_id=} {tags=}")
+        # log.error(f"{error=} {run_id=} {parent_run_id=} {tags=}")
         self.callback_on_error(error)

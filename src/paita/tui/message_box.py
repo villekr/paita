@@ -1,13 +1,16 @@
 from pathlib import PurePath
+from typing import TYPE_CHECKING
 
 import pyperclip
 from rich.syntax import Syntax
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal
-from textual.timer import Timer
 from textual.widgets import Label, Markdown, Static
 from textual.widgets._markdown import MarkdownBlock, MarkdownBullet, MarkdownFence
+
+if TYPE_CHECKING:
+    from textual.timer import Timer
 
 ROLE_ABBREVIATIONS = {"question": "Q", "answer": "A", "info": "i", "error": "!"}
 
@@ -49,9 +52,7 @@ class MessageContent(Markdown, can_focus=True, can_focus_children=False):
 
             self.screen.focus_next("MessageContent *")
             if isinstance(self.screen.focused, MarkdownFence):
-                self.update_fence_highlighting(
-                    fence=self.screen.focused, highlight=True
-                )
+                self.update_fence_highlighting(fence=self.screen.focused, highlight=True)
         else:
             self.screen.focus_next()
 
@@ -65,15 +66,14 @@ class MessageContent(Markdown, can_focus=True, can_focus_children=False):
 
             self.screen.focus_previous("MessageContent *")
             if isinstance(self.screen.focused, MarkdownFence):
-                self.update_fence_highlighting(
-                    fence=self.screen.focused, highlight=True
-                )
+                self.update_fence_highlighting(self.screen.focused, highlight=True)
         else:
             self.screen.focus_previous()
 
     def update_fence_highlighting(
         self,
         fence: MarkdownFence,
+        *,
         highlight: bool,
     ) -> None:
         if highlight:
@@ -120,12 +120,11 @@ class MessageContent(Markdown, can_focus=True, can_focus_children=False):
             for child in children:
                 text += self.parse_from_children(child, indent_depth + 1)
             return text
-        else:
-            if isinstance(block, MarkdownBullet):
-                return " " * indent_depth + "- "
-            if isinstance(block, MarkdownFence):
-                return block.code
-            return str(block.renderable) + "\n"
+        if isinstance(block, MarkdownBullet):
+            return " " * indent_depth + "- "
+        if isinstance(block, MarkdownFence):
+            return block.code
+        return str(block.renderable) + "\n"
 
 
 class MessageBox(Horizontal, can_focus=False):

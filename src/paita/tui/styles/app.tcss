@@ -44,7 +44,7 @@
 }
 
 LoadingIndicator {
-    color: $panel;
+    color: $secondary;
     align_horizontal: center;
     max-height: 1;
 }

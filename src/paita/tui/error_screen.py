@@ -18,9 +18,7 @@ class ErrorScreen(ModalScreen[bool]):
         with VerticalScroll(id="error_screen_vertical"):
             yield Label(self._error, id="error_screen_label")
             with Horizontal(id="error_screen_button_block"):
-                yield Button(
-                    self._button_text, variant="primary", id="error_screen_button"
-                )
+                yield Button(self._button_text, variant="primary", id="error_screen_button")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "error_screen_button":

@@ -1,29 +1,29 @@
 import pytest
 
 from paita.ai.chat import AsyncHandler, Chat
+from paita.ai.chat_history import ChatHistory
 from paita.ai.enums import AIService
 from paita.utils.settings_model import SettingsModel
 
 ai_service_models = {
     AIService.AWSBedRock.value: "anthropic.claude-v2",
-    AIService.OpenAIChatGPT.value: "gpt-3.5-turbo",
+    # AIService.OpenAIChatGPT.value: "gpt-3.5-turbo",
 }
 
 
-@pytest.fixture(params=[(key, value) for key, value in ai_service_models.items()])
+@pytest.fixture(params=list(ai_service_models.items()))
 def settings_model(request):
     key, value = request.param
-    model = SettingsModel(ai_service=key, ai_model=value)
-    return model
+    return SettingsModel(ai_service=key, ai_model=value)
 
 
-def mock_callback(*args, **kwargs):
+def mock_callback():
     pass
 
 
 @pytest.fixture
 def chat() -> Chat:
-    return Chat(app_name="paita_unit_test", app_author="test", file_history=False)
+    return Chat()
 
 
 @pytest.fixture
@@ -38,31 +38,37 @@ def mock_env(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "SOMETHING")
 
 
-@pytest.mark.skip("Needs mocking")
-def test_init_models(chat, settings_model, callback_handler, mock_env):
+@pytest.fixture
+def chat_history():
+    return ChatHistory(app_name="test", app_author="test", file_history=False)
+
+
+@pytest.mark.skip("Integration test or needs mocking")
+@pytest.mark.usefixtures("mock_env")
+def test_init_models(chat, settings_model, callback_handler):
     chat.init_model(
         settings_model=settings_model,
         callback_handler=callback_handler,
     )
 
 
-@pytest.mark.skip("Needs mocking")
+@pytest.mark.skip("Integration test or needs mocking")
 @pytest.mark.asyncio
-async def test_request_empty_history(chat, settings_model, callback_handler, mock_env):
+async def test_request_empty_history(chat, chat_history, settings_model, callback_handler):
     chat.init_model(
         settings_model=settings_model,
         callback_handler=callback_handler,
     )
 
-    await chat.request("First")
+    await chat.request("First", chat_history=chat_history)
 
 
-@pytest.mark.skip("Needs mocking")
+@pytest.mark.skip("Integration test or needs mocking")
 @pytest.mark.asyncio
-async def test_request_some_history(chat, settings_model, callback_handler, mock_env):
+async def test_request_some_history(chat, chat_history, settings_model, callback_handler):
     chat.init_model(
         settings_model=settings_model,
         callback_handler=callback_handler,
     )
-    await chat.request("First")
-    await chat.request("Second")
+    await chat.request("First", chat_history=chat_history)
+    await chat.request("Second", chat_history=chat_history)

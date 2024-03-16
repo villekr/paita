@@ -34,15 +34,11 @@ class SettingsScreen(ModalScreen[bool]):
         self._allow_cancel: bool = allow_cancel
 
         # Prefill select options based on stored settings values
-        self._ai_services: List[Tuple[str, str]] = list(
-            self._cache.keys(tag=Tag.AI_MODELS.value)
-        )
+        self._ai_services: List[Tuple[str, str]] = list(self._cache.keys(tag=Tag.AI_MODELS.value))
         if self._model.ai_service not in self._ai_services:
             self._model.ai_service = self._ai_services[0]
 
-        self._ai_models: List[Tuple[str, str]] = self._cache.get(
-            self._model.ai_service, [], tag=Tag.AI_MODELS.value
-        )
+        self._ai_models: List[Tuple[str, str]] = self._cache.get(self._model.ai_service, [], tag=Tag.AI_MODELS.value)
         if self._model.ai_model not in self._ai_models:
             self._model.ai_model = self._ai_models[0]
 
@@ -76,9 +72,7 @@ class SettingsScreen(ModalScreen[bool]):
                     value=dict_to_str(self._model.ai_model_kwargs),
                     id="ai_model_kwargs",
                     classes="settings_input",
-                    validators=[
-                        Function(self.validate_ai_model_kwargs, "Invalid dictionary")
-                    ],
+                    validators=[Function(self.validate_ai_model_kwargs, "Invalid dictionary")],
                 )
                 yield Input(
                     placeholder=label.AI_MAX_TOKENS,
@@ -122,15 +116,13 @@ class SettingsScreen(ModalScreen[bool]):
     def validate_ai_model_kwargs(value: str):
         try:
             str_to_dict(value)
-            return True
         except ValueError:
             return False
+        else:
+            return True
 
     async def on_mount(self) -> None:
-        if (
-            self._model.ai_service is Select.BLANK
-            or self._model.ai_model is Select.BLANK
-        ):
+        if self._model.ai_service is Select.BLANK or self._model.ai_model is Select.BLANK:
             self.query_one("#apply").disabled = True
 
     @on(Select.Changed)

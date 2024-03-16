@@ -1,8 +1,8 @@
 from pathlib import Path
 from shutil import rmtree
 
+import pytest
 from cache3 import DiskCache
-from pytest import fixture
 
 from paita.ai.enums import AIService, Tag
 
@@ -10,7 +10,7 @@ MODELS_A = ["modelA1", "modelA2", "modelA3"]
 MODELS_B = ["modelB1", "modelB2", "modelB3"]
 
 
-@fixture
+@pytest.fixture
 def cache() -> DiskCache:
     directory = "paita unit-tests"
     path = Path(directory)
@@ -45,6 +45,4 @@ def test_get_empty(cache):
 
 def test_keys(cache):
     ai_services = list(cache.keys(tag=Tag.AI_MODELS.value))
-    assert sorted(ai_services) == sorted(
-        [AIService.AWSBedRock.value, AIService.OpenAIChatGPT.value]
-    )
+    assert sorted(ai_services) == sorted([AIService.AWSBedRock.value, AIService.OpenAIChatGPT.value])

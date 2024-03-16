@@ -1,5 +1,7 @@
 import asyncio
 
+from paita.utils.logger import log
+
 markdown_content = [
     "# Sample Markdown Content\n",
     "\n",
@@ -7,8 +9,7 @@ markdown_content = [
     "\n",
     "- **Bold Text**: **This is bold text**\n",
     "- *Italic Text*: *This is italic text*\n",
-    "- [Link](https://www.example.com): \n"
-    "- Click [here](https://www.example.com) for more information\n",
+    "- [Link](https://www.example.com): \n" "- Click [here](https://www.example.com) for more information\n",
     "- Bullet Points:\n",
     "  - Point 1\n",
     "  - Point 2\n",
@@ -22,6 +23,7 @@ markdown_content = [
 
 class MockModel:
     async def request(self, data: str) -> str:
+        log.debug(data)
         if self.streaming:
             await asyncio.sleep(2)  # initial request sleep
             for item in markdown_content:
