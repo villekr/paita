@@ -1,0 +1,118 @@
+#body {
+    align_horizontal: center;
+    /*border: white;*/
+}
+
+#conversation {
+    width: 100%;
+    /*border: red;*/
+    margin: 1 0 1 0;
+    padding: 0 0 0 0;
+}
+
+#conversation:focus {
+    width: 100%;
+    border: white;
+    margin: 1 0 1 0;
+    padding: 0 0 0 0;
+}
+
+#input_box {
+    dock: bottom;
+    height: auto;
+    max-height: 50%;
+    width: 100%;
+    margin: 0 0 1 0;
+    align_horizontal: center;
+}
+
+#input {
+    width: 60%;
+    border: tall black;
+}
+
+#multi_line_input {
+    width: 60%;
+    height: auto;
+    min-height: 3;
+    background: $panel;
+    border: tall black;
+}
+
+#send_button {
+    width: auto;
+}
+
+LoadingIndicator {
+    color: $secondary;
+    align_horizontal: center;
+    max-height: 1;
+}
+
+/* MessageBox related */
+
+.message {
+    min-height: 1;
+    height: auto;
+    /*border: yellow;*/
+    padding: 0 1 0 1;
+    margin: 1 0 0 2;
+}
+
+.info {
+    background: $accent;
+}
+
+.error {
+    background: $error;
+}
+
+.question {
+    /*border: blue;*/
+}
+
+.answer {
+    /*border: green;*/
+}
+
+.info_label {
+    background: $accent;
+    padding: 1 2;
+}
+
+.error_label {
+    background: $error;
+    padding: 1 2;
+}
+
+.question_label {
+    background: $primary;
+    padding: 1 2;
+}
+
+.answer_label {
+    background: $secondary;
+    padding: 1 2;
+}
+
+.markdown {
+    height: auto;
+    width: 95%;
+    background: $panel;
+    /*border: yellow;*/
+    padding: 1 1 0 1;
+    margin: 0 1 0 1;
+}
+
+.markdown:focus {
+    background: $accent;
+}
+
+.markdown > MarkdownBlock:focus {
+    background: $accent;
+}
+/*
+MarkdownFence:focus {
+    border: hkey $accent;
+}
+*/

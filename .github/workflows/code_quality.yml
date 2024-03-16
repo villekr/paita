@@ -1,0 +1,49 @@
+name: "code quality"
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  build:
+    name: "Static checks and tests"
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up pip cache
+        if: runner.os == 'Linux'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-pip-
+      - name: Install hatch
+        run: |
+          python -m pip install hatch
+      - name: Run format and lint check
+        run: hatch fmt --check
+#      - name: Run mypy
+#        run: hatch run mypy src tests
+      - name: Run Tests
+        run: hatch run +py=${{ matrix.python-version }} all:cov
+      - name: Disambiguate coverage filename
+        run: mv .coverage ".coverage.${{ matrix.os }}.${{ matrix.python-version }}"
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}-${{ matrix.python-version }}
+          path: .coverage*
+      - name: Build dist
+        run: hatch build

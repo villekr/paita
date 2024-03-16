@@ -34,6 +34,4 @@ async def test_save_load_local():
         )
         assert loaded_manager.model == model
     finally:
-        await SettingsManager.delete(
-            app_name="paita_unit_tests", app_author="unit_test"
-        )
+        await SettingsManager.delete(app_name="paita_unit_tests", app_author="unit_test")
