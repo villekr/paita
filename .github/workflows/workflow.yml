@@ -6,6 +6,7 @@ on: [push, pull_request]
 #      - main
 jobs:
   build:
+    name: "Static checks and tests"
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -41,7 +42,7 @@ jobs:
 #      - name: Run mypy
 #        run: hatch run mypy src tests
       - name: Run Tests
-        run: hatch run +py=${{ matrix.python-version }} test
+        run: hatch run +py=${{ matrix.python-version }} all:test
 #      - name: Build dist
 #        run: hatch build
 #      - name: Upload Coverage to Codecov
