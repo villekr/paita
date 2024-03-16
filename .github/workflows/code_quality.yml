@@ -1,7 +1,13 @@
-name: "PR workflow"
+name: "code quality"
 on:
-  pull-request:
-    branches-ignore: [ main ]
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
 jobs:
   build:
     name: "Static checks and tests"
