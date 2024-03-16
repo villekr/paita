@@ -1,15 +1,14 @@
-name: "head-branch"
+name: "PR workflow"
 on:
-  pull_request:
-    branches: [ main ]
+  pull-request:
+    branches-ignore: [ main ]
 jobs:
   build:
     name: "Static checks and tests"
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-#        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -33,10 +32,10 @@ jobs:
 #        run: hatch run mypy src tests
       - name: Run Tests
         run: hatch run +py=${{ matrix.python-version }} all:cov
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v1
       - name: Build dist
         run: hatch build
-      - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v2
 #      - name: Publish on PyPI
 #        if: github.ref == 'refs/heads/main'
 #        run: hatch publish
