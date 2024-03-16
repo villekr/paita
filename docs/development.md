@@ -3,6 +3,18 @@
 ## Required tools
 * Hatch - for packaging and publishing https://hatch.pypa.io
 
+## Basic hatch commands
+
+Create (default) environment:
+```
+hatch env create
+```
+
+Activate (default) environment:
+```
+hatch shell
+```
+
 ## PyCharm
 
 When opening 'paita' in PyCharm do the following:
@@ -11,14 +23,11 @@ When opening 'paita' in PyCharm do the following:
   * `hatch env find default`
   * Set Python interpreter based on above path
 
-Create environment:
-```
-hatch env create
-```
+## Other hatch commands
 
-Activate environment:
+Activate (specific version) environment:
 ```
-hatch shell
+hatch -e all.py3.8 shell
 ```
 
 Run paita application:
@@ -46,9 +55,14 @@ Run type checker:
 mypy src tests
 ```
 
-Run tests
+Run tests for current (default) env
 ```
 hatch run test
+```
+
+Run tests for all configured envs
+```
+hatch run all:test
 ```
 
 Run test with coverage

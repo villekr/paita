@@ -45,9 +45,9 @@ class ChatApp(App):
     CSS_PATH = PurePath(__file__).parent / "styles" / "app.tcss"
 
     BINDINGS = [
-        Binding("q", "quit", "Quit", key_display="Q / CTRL+C"),
-        ("ctrl+x", "clear", "Clear"),
-        ("ctrl+1", "settings", "Settings"),
+        Binding("ctrl+q", "quit", "Quit", key_display="ctrl+q"),
+        Binding("ctrl+x", "clear", "Clear", key_display="ctrl+x"),
+        Binding("ctrl+p", "settings", "Settings", key_display="ctrl+1"),
     ]
     _settings: SettingsManager = None
     _chat: Chat = None
@@ -63,7 +63,7 @@ class ChatApp(App):
 
     def compose(self) -> ComposeResult:
         log.debug("compose")
-        yield Header(show_clock=True)
+        yield Header()  # show_clock=True)
         with Container(id="body"):
             vertical_scroll: VerticalScroll = VerticalScroll(id="conversation")
             vertical_scroll.can_focus = False
@@ -99,10 +99,11 @@ class ChatApp(App):
             self.exit_settings,
         )
 
-    def action_clear(self) -> None:
+    async def action_clear(self) -> None:
         log.debug("action_clear")
-        self.query_one("#conversation").remove()
-        self.query_one("#body").mount(VerticalScroll(id="conversation"))
+        await self._chat_history.history.aclear()
+        await self.query_one("#conversation").remove()
+        await self.query_one("#body").mount(VerticalScroll(id="conversation"))
 
     def action_quit(self) -> None:
         log.debug("action_quit")
