@@ -48,5 +48,10 @@ mypy src tests
 
 Run tests
 ```
-pytest
+hatch run test
+```
+
+Run test with coverage
+```
+hatch run cov
 ```
