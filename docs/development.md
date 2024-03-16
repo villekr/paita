@@ -27,8 +27,10 @@ When opening 'paita' in PyCharm do the following:
 
 Activate (specific version) environment:
 ```
-hatch -e all.py3.8 shell
+hatch -e <env> shell
 ```
+
+where env is one of the envs listed by `hatch env show` command.
 
 Run paita application:
 ```
