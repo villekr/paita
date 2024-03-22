@@ -58,9 +58,9 @@ def openai_models() -> [str]:
 
 
 async def main():
-    log.debug(await bedrock_models())
+    # log.debug(await bedrock_models())
     log.debug(await openai_models())
-    log.debug(await list_all_models())
+    # log.debug(await list_all_models())
 
 
 if __name__ == "__main__":
