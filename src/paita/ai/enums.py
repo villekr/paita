@@ -3,7 +3,7 @@ from enum import Enum
 
 class AIService(Enum):
     AWSBedRock = "AWS Bedrock"
-    OpenAIChatGPT = "OpenAI ChatGPT"
+    OpenAI = "OpenAI"
 
 
 class Tag(Enum):
