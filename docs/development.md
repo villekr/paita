@@ -20,8 +20,8 @@ hatch shell
 When opening 'paita' in PyCharm do the following:
 * Right click 'src'-folder and select 'Mark Directory as'->'Sources Root'
 * Configure virtualenv:
-  * `hatch env find default`
-  * Set Python interpreter based on above path
+  * Find virtual environment path: `hatch env find default` or `hatch env find <env>` e.g `hatch env find all.py3.12`
+  * Set Python interpreter based on above path + `/bin/python`
 
 ## Other hatch commands
 
@@ -54,7 +54,7 @@ hatch fmt
 
 Run type checker:
 ```
-mypy src tests
+hatch run mypy src tests
 ```
 
 Run tests for current (default) env
