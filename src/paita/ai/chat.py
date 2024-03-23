@@ -63,7 +63,7 @@ class Chat:
                 callbacks=[callback_handler],
                 # callback_manager=callback_handler,
             )
-        elif settings_model.ai_service == AIService.OpenAIChatGPT.value:
+        elif settings_model.ai_service == AIService.OpenAI.value:
             from langchain_openai import ChatOpenAI
 
             model_kwargs = {
