@@ -89,6 +89,12 @@ dependencies = [
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/pypi_publish tests}"
 
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests that require access to AI services and models (deselect with '-m \"not integration\"')",
+    "serial",
+]
+
 [tool.coverage.run]
 source_pkgs = ["paita", "tests"]
 branch = true
