@@ -12,6 +12,11 @@ Increment version:
 hatch version <major|minor|patch>
 ```
 
+Create a new branch with a name from new version:
+```
+git checkout -b release-<version>
+```
+
 ## Build
 
 ```

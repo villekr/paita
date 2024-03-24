@@ -194,7 +194,12 @@ class ChatApp(App):
         )
         conversation.scroll_end(animate=False)
 
-        await self._chat.request(question, chat_history=self._chat_history)
+        try:
+            await self._chat.request(question, chat_history=self._chat_history)
+        except ValueError as e:
+            log.info(str(e))
+        except Exception as e:  # noqa: BLE001
+            log.exception(e)
 
     def toggle_widgets(self, *widgets: Widget) -> None:
         log.debug("toggle_widgets")
@@ -239,8 +244,8 @@ class ChatApp(App):
 
         self.push_screen(ErrorScreen(str(error)), self.exit_error_screen)
 
-    def exit_error_screen(self):
-        log.debug("exit_error_screen")
+    def exit_error_screen(self, result: str):
+        log.debug(f"exit_error_screen {result}")
         loading_indication = self.query_one(LoadingIndicator)
         loading_indication.remove()
 

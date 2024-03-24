@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 async def list_models(ai_service: str = AIService.AWSBedRock.value):
     if ai_service == AIService.AWSBedRock.value:
         return await bedrock_models()
-    if ai_service == AIService.OpenAIChatGPT.value:
+    if ai_service == AIService.OpenAI.value:
         return await openai_models()
     # if ai_service == AIService.Mock:
     #     return [
@@ -58,9 +58,9 @@ def openai_models() -> [str]:
 
 
 async def main():
-    log.debug(await bedrock_models())
+    # log.debug(await bedrock_models())
     log.debug(await openai_models())
-    log.debug(await list_all_models())
+    # log.debug(await list_all_models())
 
 
 if __name__ == "__main__":

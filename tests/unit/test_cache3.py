@@ -19,7 +19,7 @@ def cache() -> DiskCache:
 
     _cache: DiskCache = DiskCache(directory)
     _cache.set(AIService.AWSBedRock.value, MODELS_A, tag=Tag.AI_MODELS.value)
-    _cache.set(AIService.OpenAIChatGPT.value, MODELS_B, tag=Tag.AI_MODELS.value)
+    _cache.set(AIService.OpenAI.value, MODELS_B, tag=Tag.AI_MODELS.value)
     yield _cache
 
     if path.exists():
@@ -45,4 +45,4 @@ def test_get_empty(cache):
 
 def test_keys(cache):
     ai_services = list(cache.keys(tag=Tag.AI_MODELS.value))
-    assert sorted(ai_services) == sorted([AIService.AWSBedRock.value, AIService.OpenAIChatGPT.value])
+    assert sorted(ai_services) == sorted([AIService.AWSBedRock.value, AIService.OpenAI.value])

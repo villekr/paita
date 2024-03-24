@@ -22,4 +22,4 @@ class ErrorScreen(ModalScreen[bool]):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "error_screen_button":
-            self.dismiss(False)
+            self.dismiss("ok")
