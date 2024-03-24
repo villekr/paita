@@ -43,6 +43,7 @@ def chat_history():
     return ChatHistory(app_name="test", app_author="test", file_history=False)
 
 
+@pytest.mark.skip("Need to setup github action permissions")
 @pytest.mark.integration
 @pytest.mark.usefixtures("mock_env")
 def test_init_models(chat, settings_model, callback_handler):
@@ -52,6 +53,7 @@ def test_init_models(chat, settings_model, callback_handler):
     )
 
 
+@pytest.mark.skip("Need to setup github action permissions")
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_request_empty_history(chat, chat_history, settings_model, callback_handler):
@@ -63,6 +65,7 @@ async def test_request_empty_history(chat, chat_history, settings_model, callbac
     await chat.request("First", chat_history=chat_history)
 
 
+@pytest.mark.skip("Need to setup github action permissions")
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_request_some_history(chat, chat_history, settings_model, callback_handler):

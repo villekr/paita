@@ -81,11 +81,6 @@ python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 [[tool.hatch.envs.test.matrix]]
 python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
-[tool.hatch.envs.test.overrides]
-platform.linux.scripts = [
-  'run=pytest -m "not integration"',
-]
-
 [tool.hatch.envs.types]
 dependencies = [
   "mypy>=1.0.0",
