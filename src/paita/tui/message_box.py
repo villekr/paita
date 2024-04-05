@@ -144,7 +144,7 @@ class MessageBox(Horizontal, can_focus=False):
         yield self._message_content
 
     def on_mount(self) -> None:
-        self._update_timer = self.set_interval(1 / 2, self._markdown_update, pause=True)
+        self._update_timer = self.set_interval(1 / 4, self._markdown_update, pause=True)
 
     def append(self, data: str):
         self.data += data

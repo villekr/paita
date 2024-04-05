@@ -29,7 +29,6 @@ class SettingsScreen(ModalScreen[bool]):
         super().__init__()
         self._settings: SettingsManager = settings
         self._model: SettingsModel = settings.model.model_copy()
-        # log.debug(f"{self._model=}")
         self._cache: DiskCache = cache
         self._allow_cancel: bool = allow_cancel
 
@@ -89,7 +88,7 @@ class SettingsScreen(ModalScreen[bool]):
                     id="ai_history_depth",
                     classes="settings_input",
                     type="integer",
-                    validators=[Number(minimum=1, maximum=100)],
+                    validators=[Number(minimum=0, maximum=100)],
                     # max_length=2,
                 )
                 yield Input(
