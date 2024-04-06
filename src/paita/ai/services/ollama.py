@@ -1,5 +1,5 @@
-import aiohttp
 from langchain_community.chat_models.ollama import ChatOllama
+from ollama import AsyncClient
 
 from paita.ai.services.service import Service
 from paita.utils.logger import log
@@ -9,15 +9,12 @@ class Ollama(Service):
     @classmethod
     async def models(cls) -> [str]:
         try:
-            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=2)) as session:
-                async with session.get("http://localhost:11434/api/tags") as response:
-                    if response.status == aiohttp.http.HTTPStatus.OK:
-                        body = await response.json()
-                        if "models" in body:
-                            models = [model["name"] for model in body["models"]]
-                            return sorted(models)
+            client = AsyncClient()
+            response = await client.list()
+            models = [model["name"] for model in response["models"]]
+            return sorted(models)
         except Exception as e:  # noqa: BLE001 TODO
-            log.exception(e)
+            log.info(e)
             return []
 
     def chat_model(self) -> ChatOllama:
