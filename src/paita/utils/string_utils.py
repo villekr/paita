@@ -6,11 +6,7 @@ from typing import Any
 
 
 def to_str(value: Any) -> str | None:
-    return str(value) if value else None
-
-
-def from_str(value: str or None) -> Any | None:
-    return str(value) if str else ""
+    return str(value)
 
 
 def str_to_num(value: float | str) -> float | str:

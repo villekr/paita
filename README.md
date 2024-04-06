@@ -52,6 +52,17 @@ export OPENAI_API_KEY=<OpenAI API Key>
 
 Enable AI model access in AWS Bedrock. Configure aws credential access accordingly.
 
+#### Ollama
+
+Ollama enables running chat models locally. 
+
+Install [ollama](https://ollama.com) for operating system or use official (docker image)[https://hub.docker.com/r/ollama/ollama] 
+
+Once ollama installed pull desired model from a registry e.g.
+```
+ollama pull llama2
+```
+
 ## Feedback
 
 * [Issues](https://github.com/villekr/paita/issues)

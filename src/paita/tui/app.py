@@ -62,8 +62,7 @@ class ChatApp(App):
         self._chat_history = ChatHistory(app_name=label.APP_TITLE, app_author=label.APP_AUTHOR)
 
     def compose(self) -> ComposeResult:
-        log.debug("compose")
-        yield Header()  # show_clock=True)
+        yield Header(show_clock=True)
         with Container(id="body"):
             vertical_scroll: VerticalScroll = VerticalScroll(id="conversation")
             vertical_scroll.can_focus = False
@@ -79,17 +78,14 @@ class ChatApp(App):
     # Action handlers
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
-        log.debug("on_button_pressed")
         if event.button.id == "send_button":
             await self.process_conversation()
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
-        log.debug("on_input_submitted")
         if event.input.id in ("input", "multi_line_input"):
             await self.process_conversation()
 
     def action_settings(self, allow_cancel: bool = False) -> None:  # noqa: FBT001, FBT002
-        log.debug("action_settings")
         self.push_screen(
             SettingsScreen(
                 settings=self._settings,
@@ -100,25 +96,21 @@ class ChatApp(App):
         )
 
     async def action_clear(self) -> None:
-        log.debug("action_clear")
         await self._chat_history.history.aclear()
         await self.query_one("#conversation").remove()
         await self.query_one("#body").mount(VerticalScroll(id="conversation"))
 
     def action_quit(self) -> None:
-        log.debug("action_quit")
         self._cache.clear()
         self.exit()
 
     # Callbacks
 
     def exit_settings(self, changed: bool = False):  # noqa: FBT001, FBT002
-        log.debug("exit_settings")
         if changed:
             self.init_chat()
 
     async def on_mount(self) -> None:
-        log.debug("on_mount")
         # TODO: If history is loaded here then scroll to end works
         # however input area text doesn't work properly
         # when calling _mount_chat_history later then text input works but scroll not
@@ -154,7 +146,6 @@ class ChatApp(App):
             self.action_settings(allow_cancel=False)
 
     def init_chat(self):
-        log.debug("init_chat")
         if self._chat is None:
             self._chat = Chat()
         callback_handler = AsyncHandler()
@@ -166,7 +157,6 @@ class ChatApp(App):
             self.query_one("#input").focus()
 
     async def process_conversation(self) -> None:
-        log.debug("process_conversation")
         if TEXT_AREA:
             text_input: MultiLineInput = self.query_one("#multi_line_input")
             question = text_input.text
@@ -202,12 +192,10 @@ class ChatApp(App):
             log.exception(e)
 
     def toggle_widgets(self, *widgets: Widget) -> None:
-        log.debug("toggle_widgets")
         for w in widgets:
             w.disabled = not w.disabled
 
     def callback_on_token(self, data: str):
-        log.debug(f"callback_on_token: {data}")
         if self._current_message is None:
             loading_indication = self.query_one(LoadingIndicator)
             loading_indication.remove()
@@ -218,7 +206,6 @@ class ChatApp(App):
             self._current_message.append(data)
 
     def callback_on_end(self, data: str):
-        log.debug(f"callback_on_end: {data}")
         conversation = self.query_one("#conversation")
         if self._current_message is None:
             loading_indication = self.query_one(LoadingIndicator)
@@ -235,7 +222,6 @@ class ChatApp(App):
         text_input.focus()
 
     def callback_on_error(self, error):
-        log.debug(f"callback_on_error: {error}")
         if self._current_message:
             loading_indication = self.query_one(LoadingIndicator)
             loading_indication.remove()
@@ -244,8 +230,10 @@ class ChatApp(App):
 
         self.push_screen(ErrorScreen(str(error)), self.exit_error_screen)
 
-    def exit_error_screen(self, result: str):
-        log.debug(f"exit_error_screen {result}")
+    def exit_error_screen(self, exit_app: bool = False):  # noqa: FBT001, FBT002
+        if exit_app:
+            self.exit()
+
         loading_indication = self.query_one(LoadingIndicator)
         loading_indication.remove()
 
@@ -256,7 +244,6 @@ class ChatApp(App):
         text_input.focus()
 
     async def _mount_chat_history(self):
-        log.debug("_mount_chat_history")
         messages = await self._chat_history.messages()
         message_boxes: [MessageBox] = [
             MessageBox(data=message.content, role=message.role.value) for message in messages
@@ -266,7 +253,6 @@ class ChatApp(App):
         conversation.scroll_end(animate=False)
 
     async def _list_models(self):
-        log.debug("_list_models")
         self.push_screen(WaitScreen(label.APP_LIST_AI_SERVICES_MODELS))
         all_models = await list_all_models()
         self.pop_screen()
@@ -274,7 +260,6 @@ class ChatApp(App):
         if not not_none_ai_models:
             msg = "No models found"
             raise ValueError(msg)
-        log.debug(f"{not_none_ai_models=}")
         for key in all_models:
             if all_models[key]:
                 self._cache.set(key, all_models[key], CACHE_TTL, tag=Tag.AI_MODELS.value)

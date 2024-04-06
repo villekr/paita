@@ -7,7 +7,8 @@ from paita.utils.settings_model import SettingsModel
 
 ai_service_models = {
     AIService.AWSBedRock.value: "anthropic.claude-v2",
-    # AIService.OpenAIChatGPT.value: "gpt-3.5-turbo",
+    AIService.OpenAI.value: "gpt-3.5-turbo",
+    AIService.Ollama.value: "openchat",
 }
 
 
@@ -43,7 +44,6 @@ def chat_history():
     return ChatHistory(app_name="test", app_author="test", file_history=False)
 
 
-@pytest.mark.skip("Need to setup github action permissions")
 @pytest.mark.integration
 @pytest.mark.usefixtures("mock_env")
 def test_init_models(chat, settings_model, callback_handler):
@@ -53,10 +53,13 @@ def test_init_models(chat, settings_model, callback_handler):
     )
 
 
-@pytest.mark.skip("Need to setup github action permissions")
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_request_empty_history(chat, chat_history, settings_model, callback_handler):
+    if settings_model.ai_service == AIService.Ollama.value:
+        # Skip testing requests with ollama as it's too slow
+        return
+
     chat.init_model(
         settings_model=settings_model,
         callback_handler=callback_handler,
@@ -65,10 +68,13 @@ async def test_request_empty_history(chat, chat_history, settings_model, callbac
     await chat.request("First", chat_history=chat_history)
 
 
-@pytest.mark.skip("Need to setup github action permissions")
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_request_some_history(chat, chat_history, settings_model, callback_handler):
+    if settings_model.ai_service == AIService.Ollama.value:
+        # Skip testing requests with ollama as it's too slow
+        return
+
     chat.init_model(
         settings_model=settings_model,
         callback_handler=callback_handler,

@@ -37,7 +37,7 @@ jobs:
 #      - name: Run mypy
 #        run: hatch run mypy src tests
       - name: Run Tests
-        run: hatch run +py=${{ matrix.python-version }} test:cov
+        run: hatch run +py=${{ matrix.python-version }} test:github-cov
       - name: Disambiguate coverage filename
         run: mv .coverage ".coverage.${{ matrix.os }}.${{ matrix.python-version }}"
       - name: Upload coverage data

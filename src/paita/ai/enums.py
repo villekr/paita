@@ -4,6 +4,7 @@ from enum import Enum
 class AIService(Enum):
     AWSBedRock = "AWS Bedrock"
     OpenAI = "OpenAI"
+    Ollama = "Ollama"
 
 
 class Tag(Enum):
