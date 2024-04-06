@@ -11,6 +11,7 @@ Paita is textual assistant for your terminal that supports multiple AI Services 
 ### Supported AI Services
 * OpenAI
 * AWS Bedrock
+* Ollama (local models)
 * (More to come soon...)
 
 ## Getting Started
@@ -58,7 +59,7 @@ Ollama enables running chat models locally.
 
 Install [ollama](https://ollama.com) for operating system or use official (docker image)[https://hub.docker.com/r/ollama/ollama] 
 
-Once ollama installed pull desired model from a registry e.g.
+Once ollama installed pull desired [model](https://ollama.com/library) from a registry e.g.
 ```
 ollama pull llama2
 ```
