@@ -128,10 +128,16 @@ class SettingsScreen(ModalScreen[bool]):
     @on(Select.Changed)
     async def select_changed(self, event: Select.Changed) -> None:
         if event.control.id == "ai_service":
+            value = event.value
+            if value == self._model.ai_service:
+                return
             models = self._cache.get(event.value, Select.BLANK, tag=Tag.AI_MODELS.value)
             widget: Select = self.query_one("#ai_model")
             widget.set_options((item, item) for item in models)
         elif event.control.id == "ai_model":
+            value = event.value
+            if value == self._model.ai_model:
+                return
             self.query_one("#apply").disabled = False
         else:
             log.error(f"Undefined {event.id=}")
@@ -141,12 +147,6 @@ class SettingsScreen(ModalScreen[bool]):
             model: SettingsModel = SettingsModel(
                 ai_service=self.query_one("#ai_service").value,
                 ai_model=self.query_one("#ai_model").value,
-                # ai_persona=self.query_one("#ai_persona").text,
-                # ai_streaming=self.query_one("#ai_streaming").value,
-                # ai_model_kwargs=json.loads(self.query_one("#ai_model_kwargs").value),
-                # ai_n=self.query_one("#ai_n").value,
-                # ai_max_tokens=self.query_one("#ai_max_tokens").value,
-                # ai_history_depth=self.query_one("#ai_history_depth").value,
             )
             if (value := self.query_one("#ai_persona").text) != "":
                 model.ai_persona = value
@@ -160,7 +160,6 @@ class SettingsScreen(ModalScreen[bool]):
                 model.ai_history_depth = str_to_num(value)
             model.ai_streaming = self.query_one("#ai_streaming").value
 
-            # log.debug(f"{model=}")
             self._settings.model = model
             await self._settings.save()
             self.dismiss(True)
