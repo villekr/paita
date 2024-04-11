@@ -35,6 +35,9 @@ dependencies = [
   "pyperclip~=1.8",
   "eval-type-backport~=0.2",
   "ollama~=0.2",
+  # "bs4~=0.0.2",
+  "beautifulsoup4~=4",  # langchain-community document-loader directly depends on bs4
+  "chromadb~=0.5",
 ]
 
 [project.urls]
