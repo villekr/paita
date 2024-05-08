@@ -150,11 +150,19 @@ class ChatApp(App):
             self._chat = Chat()
         callback_handler = AsyncHandler()
         callback_handler.register_callbacks(self.callback_on_token, self.callback_on_end, self.callback_on_error)
-        self._chat.init_model(settings_model=self._settings.model, callback_handler=callback_handler)
-        if TEXT_AREA:
-            self.query_one("#multi_line_input").focus()
-        else:
-            self.query_one("#input").focus()
+        try:
+            self._chat.init_model(settings_model=self._settings.model, callback_handler=callback_handler)
+            if TEXT_AREA:
+                self.query_one("#multi_line_input").focus()
+            else:
+                self.query_one("#input").focus()
+        except ValueError:
+            self._settings = SettingsManager(
+                model=SettingsModel(),
+                app_name=label.APP_TITLE,
+                app_author=label.APP_AUTHOR,
+            )
+            self.action_settings(allow_cancel=False)
 
     async def process_conversation(self) -> None:
         if TEXT_AREA:
