@@ -61,7 +61,12 @@ Install [ollama](https://ollama.com) for operating system or use official (docke
 
 Once ollama installed pull desired [model](https://ollama.com/library) from a registry e.g.
 ```
-ollama pull llama2
+ollama pull llama3
+```
+
+By default paita connects to local Ollama endpoint. Optionally you can configure endpoint url with env variable:
+```
+export OLLAMA_ENDPOINT=<protocol>://<ollama-host-address>:<ollama-host-port>
 ```
 
 ## Feedback

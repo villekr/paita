@@ -1,3 +1,5 @@
+import os
+
 from langchain_community.chat_models.ollama import ChatOllama
 from ollama import AsyncClient
 
@@ -9,7 +11,7 @@ class Ollama(Service):
     @classmethod
     async def models(cls) -> [str]:
         try:
-            client = AsyncClient()
+            client = AsyncClient(host=os.getenv("OLLAMA_ENDPOINT", None))
             response = await client.list()
             models = [model["name"] for model in response["models"]]
             return sorted(models)
@@ -28,7 +30,7 @@ class Ollama(Service):
         if self._settings_model.ai_model_kwargs:
             model_kwargs.update(self._settings_model.ai_model_kwargs)
         log.debug(f"{model_kwargs=}")
-        return ChatOllama(
+        chat_ollama = ChatOllama(
             model_id=self._settings_model.ai_model,
             streaming=self._settings_model.ai_streaming,
             model_kwargs=model_kwargs,
@@ -37,3 +39,7 @@ class Ollama(Service):
             callbacks=[self._callback_handler],
             # callback_manager=callback_handler,
         )
+        if (host := os.getenv("OLLAMA_ENDPOINT", None)) is not None:
+            chat_ollama.base_url = host
+
+        return chat_ollama
