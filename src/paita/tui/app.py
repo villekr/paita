@@ -111,10 +111,7 @@ class ChatApp(App):
             self.init_chat()
 
     async def on_mount(self) -> None:
-        # TODO: If history is loaded here then scroll to end works
-        # however input area text doesn't work properly
-        # when calling _mount_chat_history later then text input works but scroll not
-        # await self._mount_chat_history()
+        await self._mount_chat_history()
         try:
             await self.push_screen(WaitScreen(label.APP_LIST_AI_SERVICES_MODELS))
             await self._list_models()
@@ -130,7 +127,6 @@ class ChatApp(App):
                 self.exit,
             )
             return
-        await self._mount_chat_history()
         # Read existing settings or open settings screen
         try:
             self._settings: SettingsManager = await SettingsManager.load(
