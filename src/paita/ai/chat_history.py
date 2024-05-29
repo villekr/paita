@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from langchain.memory import ChatMessageHistory, FileChatMessageHistory
+from langchain_community.chat_message_histories import ChatMessageHistory, FileChatMessageHistory
 from langchain_core.chat_history import AIMessage, BaseChatMessageHistory
 
 from paita.ai.enums import Role

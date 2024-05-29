@@ -8,7 +8,7 @@ from paita.utils.settings_model import SettingsModel
 ai_service_models = {
     AIService.AWSBedRock.value: "anthropic.claude-v2",
     AIService.OpenAI.value: "gpt-3.5-turbo",
-    AIService.Ollama.value: "openchat",
+    AIService.Ollama.value: "llama3:latest",
 }
 
 
