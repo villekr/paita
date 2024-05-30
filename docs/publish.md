@@ -17,6 +17,12 @@ Create a new branch with a name from new version:
 git checkout -b release-<version>
 ```
 
+Add tag matching version number
+```
+git tag <version>
+git push --tags
+```
+
 ## Build
 
 ```
