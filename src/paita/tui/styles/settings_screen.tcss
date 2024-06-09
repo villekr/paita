@@ -3,8 +3,8 @@ SettingsScreen {
 }
 
 .settings {
-    width: 80;
-    height: 50%;
+    width: 90%;
+    height: 90%;
     align: center middle;
     background: $surface;
     border: tall $accent;
@@ -18,26 +18,53 @@ SettingsScreen {
 
 .settings_option {
     margin: 0 1 1 1;
+    width: 35%;
+    align_horizontal: center;
+}
+
+.settings_long_option {
+    margin: 0 1 1 1;
+    width: 35%;
+    align_horizontal: center;
+}
+
+.settings_small_option {
+    margin: 0 1 1 1;
+    width: 16%;
     align_horizontal: center;
 }
 
 .settings_textarea {
-    height: 4;
+    height: 6;
     margin: 0 1 1 1;
     align_horizontal: center;
     border: tall black;
     background: $panel;
 }
 
+.settings_textarea_error {
+    background: $error;
+}
+
 .settings_input {
     margin: 0 1 1 1;
-    align_horizontal: center;
+    width: 50%;
+    align_horizontal: left;
+    border: tall black;
+    background: $panel;
+}
+
+.settings_small_input {
+    margin: 0 1 1 1;
+    width: 8%;
+    align_horizontal: left;
     border: tall black;
     background: $panel;
 }
 
 .settings_checkbox {
     margin: 0 1 1 1;
+    width: 16%;
     align_horizontal: center;
     border: tall black;
     background: $panel;
@@ -45,7 +72,13 @@ SettingsScreen {
 
 .settings_block {
     align_horizontal: center;
-    margin: 1 1 0 1;
+    margin: 0 1 0 1;
+    height: auto;
+}
+
+.settings_invisible_block {
+    align_horizontal: left;
+    margin: 0 0 0 0;
     height: auto;
 }
 

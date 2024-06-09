@@ -4,6 +4,8 @@ import json
 import re
 from typing import Any
 
+import validators
+
 
 def to_str(value: Any) -> str | None:
     return str(value)
@@ -53,3 +55,32 @@ def dict_to_str(value: dict) -> str:
     filtered_items = [(key, val) for key, val in sorted_items if not is_nested({key: val})]
 
     return ",".join(f"{key}={json.dumps(val)}" for key, val in filtered_items)
+
+
+def fix_url(url: str) -> str:
+    if not url.startswith(("http://", "https://")):
+        url = f"https://{url}"
+    return url
+
+
+def split_and_validate(source: str) -> [str]:
+    pattern = r"[,\s;]+"
+    urls = re.split(pattern, source)
+
+    fixed_urls = []
+    for url in urls:
+        fixed_url = fix_url(url)
+        if not validators.url(fixed_url):
+            error_str = f"Invalid URL: {fixed_url}"
+            raise ValueError(error_str)
+        fixed_urls.append(fixed_url)
+
+    return fixed_urls
+
+
+def validate_and_fix_url(url: str) -> [str]:
+    fixed_url = fix_url(url)
+    if not validators.url(fixed_url):
+        error_str = f"Invalid URL: {fixed_url}"
+        raise ValueError(error_str)
+    return fixed_url

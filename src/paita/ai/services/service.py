@@ -1,3 +1,4 @@
+from langchain_core.embeddings import Embeddings
 from langchain_core.language_models.chat_models import BaseChatModel
 
 from paita.ai.callbacks import AsyncHandler
@@ -11,6 +12,10 @@ class Service:
 
     @classmethod
     async def models(cls) -> [str]:
+        raise NotImplementedError
+
+    @classmethod
+    def embeddings(cls) -> Embeddings:
         raise NotImplementedError
 
     def chat_model(self) -> BaseChatModel:

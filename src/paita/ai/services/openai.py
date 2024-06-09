@@ -2,6 +2,7 @@ import asyncio
 from typing import TYPE_CHECKING
 
 from langchain_openai import ChatOpenAI
+from langchain_openai.embeddings import OpenAIEmbeddings
 from openai import OpenAI as OpenAIModule
 
 from paita.ai.services.service import Service
@@ -24,6 +25,10 @@ class OpenAI(Service):
         except Exception as e:  # noqa: BLE001 TODO
             log.info(e)
             return []
+
+    @classmethod
+    def embeddings(cls) -> OpenAIEmbeddings:
+        return OpenAIEmbeddings()
 
     def chat_model(self) -> ChatOpenAI:
         model_kwargs = {
