@@ -27,6 +27,7 @@ def cache() -> DiskCache:
         rmtree(path.as_posix())
 
 
+@pytest.mark.integration
 def test_create_rag_manager(cache):
     settings_model = SettingsModel(ai_service=AIService.AWSBedRock)
     rag_manager = create_rag_manager(
