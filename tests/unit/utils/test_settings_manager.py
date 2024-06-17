@@ -1,6 +1,6 @@
 import pytest
 
-from paita.ai.enums import AIService
+from paita.llm.enums import AIService
 from paita.utils.settings_manager import SettingsManager, SettingsModel
 
 

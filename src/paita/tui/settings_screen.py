@@ -12,7 +12,7 @@ from textual.validation import Function, Number
 from textual.widgets import Button, Checkbox, Header, Input, Select, TextArea
 
 import paita.localization.labels as label
-from paita.ai.enums import Tag
+from paita.llm.enums import Tag
 from paita.localization import labels
 from paita.rag.models import RAGSource, RAGSources
 from paita.rag.rag_manager import RAGManager, RAGSourceType

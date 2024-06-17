@@ -1,9 +1,9 @@
 import pytest
 from pydantic import ValidationError
 
-from paita.ai.enums import AIService
-from paita.ai.models import get_embeddings
-from paita.rag.models import RAGSources, RAGSource, RAGSourceType
+from paita.llm.enums import AIService
+from paita.llm.models import get_embeddings
+from paita.rag.models import RAGSource, RAGSources, RAGSourceType
 from paita.rag.rag_manager import RAGManager, RAGManagerModel, RAGVectorStoreType
 
 

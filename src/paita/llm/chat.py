@@ -4,10 +4,10 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.output_parser import StrOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-from paita.ai.callbacks import AsyncHandler
-from paita.ai.chat_history import ChatHistory
-from paita.ai.models import AIService
-from paita.ai.services import bedrock, ollama, openai
+from paita.llm.callbacks import AsyncHandler
+from paita.llm.chat_history import ChatHistory
+from paita.llm.models import AIService
+from paita.llm.services import bedrock, ollama, openai
 from paita.rag.rag_manager import RAGManager
 from paita.utils.settings_model import SettingsModel
 

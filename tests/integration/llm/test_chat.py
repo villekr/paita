@@ -1,12 +1,11 @@
 import pytest
 
-from paita.ai.chat import AsyncHandler, Chat
-from paita.ai.chat_history import ChatHistory
-from paita.ai.enums import AIService
-from paita.utils.settings_model import SettingsModel
-from paita.ai.models import get_embeddings
-from paita.rag.models import RAGSourceType
+from paita.llm.chat import AsyncHandler, Chat
+from paita.llm.chat_history import ChatHistory
+from paita.llm.enums import AIService
+from paita.llm.models import get_embeddings
 from paita.rag.rag_manager import RAGManager, RAGManagerModel, RAGVectorStoreType
+from paita.utils.settings_model import SettingsModel
 
 ai_service_models = {
     AIService.AWSBedRock.value: "anthropic.claude-v2",

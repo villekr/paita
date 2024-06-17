@@ -1,8 +1,8 @@
 import asyncio
 from typing import Dict, List
 
-from paita.ai.enums import AIService
-from paita.ai.services import bedrock, ollama, openai
+from paita.llm.enums import AIService
+from paita.llm.services import bedrock, ollama, openai
 from paita.utils.logger import log
 
 

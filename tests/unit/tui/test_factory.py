@@ -4,7 +4,7 @@ from shutil import rmtree
 import pytest
 from cache3 import DiskCache
 
-from paita.ai.enums import AIService, Tag
+from paita.llm.enums import AIService, Tag
 from paita.tui.factory import create_rag_manager
 from paita.utils.settings_model import SettingsModel
 

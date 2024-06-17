@@ -4,7 +4,7 @@ from langchain_community.chat_models.ollama import ChatOllama
 from langchain_community.embeddings.ollama import OllamaEmbeddings
 from ollama import AsyncClient
 
-from paita.ai.services.service import Service
+from paita.llm.services.service import Service
 from paita.utils.logger import log
 
 

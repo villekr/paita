@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING
 from langchain_community.chat_message_histories import ChatMessageHistory, FileChatMessageHistory
 from langchain_core.chat_history import AIMessage, BaseChatMessageHistory
 
-from paita.ai.enums import Role
-from paita.ai.message import Message
+from paita.llm.enums import Role
+from paita.llm.message import Message
 from paita.utils.config_dirs import compose_path
 
 if TYPE_CHECKING:

@@ -10,7 +10,7 @@ from botocore.config import Config
 from langchain_aws import ChatBedrock
 from langchain_community.embeddings import BedrockEmbeddings
 
-from paita.ai.services.service import Service
+from paita.llm.services.service import Service
 from paita.utils.logger import log
 
 # https://github.com/langchain-ai/langchain/issues/11668

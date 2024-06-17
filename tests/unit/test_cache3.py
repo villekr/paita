@@ -4,7 +4,7 @@ from shutil import rmtree
 import pytest
 from cache3 import DiskCache
 
-from paita.ai.enums import AIService, Tag
+from paita.llm.enums import AIService, Tag
 
 MODELS_A = ["modelA1", "modelA2", "modelA3"]
 MODELS_B = ["modelB1", "modelB2", "modelB3"]

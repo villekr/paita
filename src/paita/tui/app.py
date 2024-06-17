@@ -9,11 +9,11 @@ from textual.binding import Binding
 from textual.containers import Container, Horizontal, VerticalScroll
 from textual.widgets import Button, Footer, Header, Input, LoadingIndicator
 
-from paita.ai.callbacks import AsyncHandler
-from paita.ai.chat import Chat
-from paita.ai.chat_history import ChatHistory
-from paita.ai.enums import Tag
-from paita.ai.models import list_all_models
+from paita.llm.callbacks import AsyncHandler
+from paita.llm.chat import Chat
+from paita.llm.chat_history import ChatHistory
+from paita.llm.enums import Tag
+from paita.llm.models import list_all_models
 from paita.localization import labels
 from paita.tui.error_screen import ErrorScreen
 from paita.tui.factory import create_rag_manager

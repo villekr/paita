@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 from langchain_openai.embeddings import OpenAIEmbeddings
 from openai import OpenAI as OpenAIModule
 
-from paita.ai.services.service import Service
+from paita.llm.services.service import Service
 from paita.utils.logger import log
 
 if TYPE_CHECKING:

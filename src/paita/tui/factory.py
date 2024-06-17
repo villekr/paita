@@ -2,8 +2,8 @@ from typing import List, Tuple
 
 from cache3 import DiskCache
 
-from paita.ai.enums import Tag
-from paita.ai.models import get_embeddings
+from paita.llm.enums import Tag
+from paita.llm.models import get_embeddings
 from paita.rag.rag_manager import RAGManager, RAGManagerModel, RAGVectorStoreType
 from paita.utils.settings_model import SettingsModel
 

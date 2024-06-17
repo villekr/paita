@@ -1,7 +1,7 @@
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models.chat_models import BaseChatModel
 
-from paita.ai.callbacks import AsyncHandler
+from paita.llm.callbacks import AsyncHandler
 from paita.utils.settings_model import SettingsModel
 
 
