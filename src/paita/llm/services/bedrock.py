@@ -7,9 +7,10 @@ from typing import Optional
 
 import boto3
 from botocore.config import Config
-from langchain_community.chat_models.bedrock import BedrockChat
+from langchain_aws import ChatBedrock
+from langchain_community.embeddings import BedrockEmbeddings
 
-from paita.ai.services.service import Service
+from paita.llm.services.service import Service
 from paita.utils.logger import log
 
 # https://github.com/langchain-ai/langchain/issues/11668
@@ -30,7 +31,11 @@ class Bedrock(Service):
             log.info(e)
             return []
 
-    def chat_model(self) -> BedrockChat:
+    @classmethod
+    def embeddings(cls) -> BedrockEmbeddings:
+        return BedrockEmbeddings()
+
+    def chat_model(self) -> ChatBedrock:
         model_kwargs = {
             # "max_tokens_to_sample": self._settings_model.ai_max_tokens,
             "temperature": 1,
@@ -41,7 +46,7 @@ class Bedrock(Service):
         if self._settings_model.ai_model_kwargs:
             model_kwargs.update(self._settings_model.ai_model_kwargs)
         log.debug(f"{model_kwargs=}")
-        return BedrockChat(
+        return ChatBedrock(
             model_id=self._settings_model.ai_model,
             streaming=(False if BEDROCK_DISABLE_STREAMING else self._settings_model.ai_streaming),
             model_kwargs=model_kwargs,

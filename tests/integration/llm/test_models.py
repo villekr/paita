@@ -1,6 +1,6 @@
 import pytest
 
-from paita.ai.models import list_all_models
+from paita.llm.models import list_all_models
 
 
 @pytest.mark.integration

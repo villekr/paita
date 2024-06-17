@@ -21,12 +21,13 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "textual~=0.63",
+  "textual~=0.69",
   "boto3~=1.34",
   "loguru~=0.7",
   "langchain-core~=0.2",
   "langchain-community~=0.2",
   "langchain-openai~=0.1",
+  "langchain-aws~=0.1",
   "langchain~=0.2",
   "appdirs~=1.4",
   "pydantic~=2.7",
@@ -35,6 +36,11 @@ dependencies = [
   "pyperclip~=1.8",
   "eval-type-backport~=0.2",
   "ollama~=0.2",
+  "bs4~=0.0.2",
+  # "beautifulsoup4~=",  # langchain-community document-loader directly depends on bs4
+  "chromadb~=0.5",
+  "validators~=0.28",
+  "lxml~=5.2"
 ]
 
 [project.urls]

@@ -1,5 +1,5 @@
-from paita.ai.enums import Role
-from paita.ai.message import Message
+from paita.llm.enums import Role
+from paita.llm.message import Message
 
 
 def test_message():

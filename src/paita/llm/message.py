@@ -2,7 +2,7 @@ from typing import Dict, List, Union
 
 from pydantic import BaseModel
 
-from paita.ai.enums import Role
+from paita.llm.enums import Role
 
 
 class Message(BaseModel):

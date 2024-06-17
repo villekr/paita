@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import PurePath
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from appdirs import user_config_dir
 from cache3 import DiskCache
@@ -9,19 +9,23 @@ from textual.binding import Binding
 from textual.containers import Container, Horizontal, VerticalScroll
 from textual.widgets import Button, Footer, Header, Input, LoadingIndicator
 
-import paita.localization.labels as label
-from paita.ai.callbacks import AsyncHandler
-from paita.ai.chat import Chat
-from paita.ai.chat_history import ChatHistory
-from paita.ai.enums import Tag
-from paita.ai.models import list_all_models
+from paita.llm.callbacks import AsyncHandler
+from paita.llm.chat import Chat
+from paita.llm.chat_history import ChatHistory
+from paita.llm.enums import Tag
+from paita.llm.models import list_all_models
+from paita.localization import labels
 from paita.tui.error_screen import ErrorScreen
+from paita.tui.factory import create_rag_manager
 from paita.tui.message_box import MessageBox
 from paita.tui.multi_line_input import MultiLineInput
 from paita.tui.settings_screen import SettingsScreen
 from paita.tui.wait_screen import WaitScreen
 from paita.utils.logger import log
 from paita.utils.settings_manager import SettingsManager, SettingsModel
+
+if TYPE_CHECKING:
+    from paita.rag.rag_manager import RAGManager
 
 
 class Role(Enum):
@@ -31,7 +35,7 @@ class Role(Enum):
     ERROR = "error"
 
 
-CACHE_DIR = user_config_dir(appname=label.APP_TITLE, appauthor=label.APP_AUTHOR)
+CACHE_DIR = user_config_dir(appname=labels.APP_TITLE, appauthor=labels.APP_AUTHOR)
 CACHE_NAME = "cache"
 CACHE_TTL = 24 * 60 * 60
 
@@ -40,26 +44,29 @@ TEXT_AREA = True
 
 
 class ChatApp(App):
-    TITLE = label.APP_TITLE
-    SUB_TITLE = label.APP_SUBTITLE
+    TITLE = labels.APP_TITLE
+    SUB_TITLE = labels.APP_SUBTITLE
     CSS_PATH = PurePath(__file__).parent / "styles" / "app.tcss"
 
     BINDINGS = [
         Binding("ctrl+q", "quit", "Quit", key_display="ctrl+q"),
         Binding("ctrl+x", "clear", "Clear", key_display="ctrl+x"),
-        Binding("ctrl+p", "settings", "Settings", key_display="ctrl+1"),
+        Binding("ctrl+p", "settings", "Settings", key_display="ctrl+p"),
     ]
-    _settings: SettingsManager = None
-    _chat: Chat = None
-    _cache: DiskCache = DiskCache(CACHE_DIR, CACHE_NAME)
 
     def __init__(self):
         super().__init__()
+
+        self._settings_manager: SettingsManager = None
+        self._rag_manager: RAGManager = None
+        self._chat: Chat = None
+        self._cache: DiskCache = DiskCache(CACHE_DIR, CACHE_NAME)
+
         self._current_message: Union[MessageBox or None] = None
         self._current_id: str = "id_0"
         self._last_focused: Union[Widget or None] = None
 
-        self._chat_history = ChatHistory(app_name=label.APP_TITLE, app_author=label.APP_AUTHOR)
+        self._chat_history = ChatHistory(app_name=labels.APP_TITLE, app_author=labels.APP_AUTHOR)
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
@@ -72,7 +79,7 @@ class ChatApp(App):
                     yield MultiLineInput(id="multi_line_input", multiline=True)
                 else:
                     yield Input(id="input")
-                yield Button(label="Send", variant="success", id="send_button")
+                yield Button("Send", variant="success", id="send_button")
         yield Footer()
 
     # Action handlers
@@ -86,13 +93,17 @@ class ChatApp(App):
             await self.process_conversation()
 
     def action_settings(self, allow_cancel: bool = False) -> None:  # noqa: FBT001, FBT002
+        settings_screen = SettingsScreen(
+            settings_manager=self._settings_manager,
+            rag_manager=self._rag_manager,
+            cache=self._cache,
+            allow_cancel=allow_cancel,
+        )
+        callback = self.exit_settings
+        log.info(f"{callback=}")
         self.push_screen(
-            SettingsScreen(
-                settings=self._settings,
-                cache=self._cache,
-                allow_cancel=allow_cancel,
-            ),
-            self.exit_settings,
+            screen=settings_screen,
+            callback=callback,
         )
 
     async def action_clear(self) -> None:
@@ -113,7 +124,7 @@ class ChatApp(App):
     async def on_mount(self) -> None:
         await self._mount_chat_history()
         try:
-            await self.push_screen(WaitScreen(label.APP_LIST_AI_SERVICES_MODELS))
+            await self.push_screen(WaitScreen(labels.APP_LIST_AI_SERVICES_MODELS))
             await self._list_models()
             self.pop_screen()
         except ValueError as e:
@@ -121,24 +132,38 @@ class ChatApp(App):
             self.pop_screen()
             await self.push_screen(
                 ErrorScreen(
-                    label.APP_ERROR_NO_AI_SERVICES_OR_MODELS,
-                    label.APP_DIALOG_BUTTON_EXIT,
+                    labels.APP_ERROR_NO_AI_SERVICES_OR_MODELS,
+                    labels.APP_DIALOG_BUTTON_EXIT,
                 ),
                 self.exit,
             )
             return
         # Read existing settings or open settings screen
         try:
-            self._settings: SettingsManager = await SettingsManager.load(
-                app_name=label.APP_TITLE, app_author=label.APP_AUTHOR
+            self._settings_manager: SettingsManager = await SettingsManager.load(
+                app_name=labels.APP_TITLE, app_author=labels.APP_AUTHOR
             )
+            self._rag_manager = create_rag_manager(
+                app_name=labels.APP_TITLE,
+                app_author=labels.APP_AUTHOR,
+                settings_model=self._settings_manager.model,
+                cache=self._cache,
+            )
+            await self._rag_manager.read()
             self.init_chat()
         except FileNotFoundError:
-            self._settings = SettingsManager(
+            self._settings_manager = SettingsManager(
                 model=SettingsModel(),
-                app_name=label.APP_TITLE,
-                app_author=label.APP_AUTHOR,
+                app_name=labels.APP_TITLE,
+                app_author=labels.APP_AUTHOR,
             )
+            self._rag_manager = create_rag_manager(
+                app_name=labels.APP_TITLE,
+                app_author=labels.APP_AUTHOR,
+                settings_model=self._settings_manager.model,
+                cache=self._cache,
+            )
+            await self._rag_manager.read()
             self.action_settings(allow_cancel=False)
 
     def init_chat(self):
@@ -146,17 +171,23 @@ class ChatApp(App):
             self._chat = Chat()
         callback_handler = AsyncHandler()
         callback_handler.register_callbacks(self.callback_on_token, self.callback_on_end, self.callback_on_error)
+
         try:
-            self._chat.init_model(settings_model=self._settings.model, callback_handler=callback_handler)
+            self._chat.init_model(
+                settings_model=self._settings_manager.model,
+                chat_history=self._chat_history,
+                rag_manager=self._rag_manager,
+                callback_handler=callback_handler,
+            )
             if TEXT_AREA:
                 self.query_one("#multi_line_input").focus()
             else:
                 self.query_one("#input").focus()
         except ValueError:
-            self._settings = SettingsManager(
+            self._settings_manager = SettingsManager(
                 model=SettingsModel(),
-                app_name=label.APP_TITLE,
-                app_author=label.APP_AUTHOR,
+                app_name=labels.APP_TITLE,
+                app_author=labels.APP_AUTHOR,
             )
             self.action_settings(allow_cancel=False)
 
@@ -189,11 +220,15 @@ class ChatApp(App):
         conversation.scroll_end(animate=False)
 
         try:
-            await self._chat.request(question, chat_history=self._chat_history)
+            await self._chat.request(question)
         except ValueError as e:
-            log.info(str(e))
+            error = str(e)
+            log.info(error)
+            self.push_screen(ErrorScreen(error), self.exit_error_screen)
         except Exception as e:  # noqa: BLE001
+            error = str(e)
             log.exception(e)
+            self.push_screen(ErrorScreen(error), self.exit_error_screen)
 
     def toggle_widgets(self, *widgets: Widget) -> None:
         for w in widgets:
@@ -257,7 +292,7 @@ class ChatApp(App):
         conversation.scroll_end(animate=False)
 
     async def _list_models(self):
-        self.push_screen(WaitScreen(label.APP_LIST_AI_SERVICES_MODELS))
+        self.push_screen(WaitScreen(labels.APP_LIST_AI_SERVICES_MODELS))
         all_models = await list_all_models()
         self.pop_screen()
         not_none_ai_models = any(len(models) for models in all_models.values())

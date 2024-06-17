@@ -1,9 +1,10 @@
 import os
 
 from langchain_community.chat_models.ollama import ChatOllama
+from langchain_community.embeddings.ollama import OllamaEmbeddings
 from ollama import AsyncClient
 
-from paita.ai.services.service import Service
+from paita.llm.services.service import Service
 from paita.utils.logger import log
 
 
@@ -18,6 +19,10 @@ class Ollama(Service):
         except Exception as e:  # noqa: BLE001 TODO
             log.info(e)
             return []
+
+    @classmethod
+    def embeddings(cls) -> OllamaEmbeddings:
+        return OllamaEmbeddings()
 
     def chat_model(self) -> ChatOllama:
         model_kwargs = {
