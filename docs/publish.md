@@ -15,7 +15,13 @@ hatch version <major|minor|patch>
 Create a new branch with a name from new version:
 ```
 git checkout -b release-<version>
+git tag <version>
+git add .
+git commit -m"Version <version>"
+git push --tags
 ```
+
+Create PR and merge to main.
 
 ## Build
 

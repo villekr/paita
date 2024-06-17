@@ -19,10 +19,12 @@ def rag_manager() -> RAGManager:
     )
 
 
+@pytest.mark.integration
 def test_create(rag_manager: RAGManager):
     assert rag_manager is not None
 
 
+@pytest.mark.integration
 def test_create_invalid():
     with pytest.raises(ValidationError):
         return RAGManager(
