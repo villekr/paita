@@ -1,6 +1,6 @@
 import pytest
 
-from paita.utils.string_utils import dict_to_str, split_and_validate, str_to_dict, str_to_num
+from paita.utils.string_utils import dict_to_str, split_and_fix, str_to_dict, str_to_num
 
 
 def test_to_num():
@@ -59,11 +59,12 @@ def test_dict_to_str():
 
 def test_split_and_validate():
     sources = "http://aws.amazon.com, https://openai.com, https://ollama.com"
-    output = split_and_validate(sources)
+    output = split_and_fix(sources)
     assert output == ["http://aws.amazon.com", "https://openai.com", "https://ollama.com"]
 
 
 def test_split_and_validate_invalid():
     sources = "aws.amazon.com, openai.com, ollama.com"
-    with pytest.raises(ValueError, match="Invalid URL: aws.amazon.com"):
-        _ = split_and_validate(sources)
+    split_sources = split_and_fix(sources)
+    assert len(split_sources) == 3
+    assert split_sources[0] == "http://aws.amazon.com"

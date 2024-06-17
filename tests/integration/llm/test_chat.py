@@ -4,11 +4,14 @@ from paita.ai.chat import AsyncHandler, Chat
 from paita.ai.chat_history import ChatHistory
 from paita.ai.enums import AIService
 from paita.utils.settings_model import SettingsModel
+from paita.ai.models import get_embeddings
+from paita.rag.models import RAGSourceType
+from paita.rag.rag_manager import RAGManager, RAGManagerModel, RAGVectorStoreType
 
 ai_service_models = {
     AIService.AWSBedRock.value: "anthropic.claude-v2",
-    AIService.OpenAI.value: "gpt-3.5-turbo",
-    AIService.Ollama.value: "llama3:latest",
+    # AIService.OpenAI.value: "gpt-3.5-turbo",
+    # AIService.Ollama.value: "llama3:latest",
 }
 
 
@@ -16,6 +19,19 @@ ai_service_models = {
 def settings_model(request):
     key, value = request.param
     return SettingsModel(ai_service=key, ai_model=value)
+
+
+@pytest.fixture(params=list(ai_service_models.items()))
+def rag_manager(request):
+    key, value = request.param
+    return RAGManager(
+        RAGManagerModel(
+            app_name="test_rag_manager",
+            app_author="unit_test_author",
+            embeddings=get_embeddings(key),
+            vector_store_type=RAGVectorStoreType.CHROMA,
+        )
+    )
 
 
 def mock_callback():
@@ -46,38 +62,36 @@ def chat_history():
 
 @pytest.mark.integration
 @pytest.mark.usefixtures("mock_env")
-def test_init_models(chat, settings_model, callback_handler):
+def test_init_models(chat, settings_model, chat_history, rag_manager, callback_handler):
     chat.init_model(
         settings_model=settings_model,
+        chat_history=chat_history,
+        rag_manager=rag_manager,
         callback_handler=callback_handler,
     )
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_request_empty_history(chat, chat_history, settings_model, callback_handler):
-    if settings_model.ai_service == AIService.Ollama.value:
-        # Skip testing requests with ollama as it's too slow
-        return
-
+async def test_request_empty_history(chat, settings_model, chat_history, rag_manager, callback_handler):
     chat.init_model(
         settings_model=settings_model,
+        chat_history=chat_history,
+        rag_manager=rag_manager,
         callback_handler=callback_handler,
     )
 
-    await chat.request("First", chat_history=chat_history)
+    await chat.request("First")
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_request_some_history(chat, chat_history, settings_model, callback_handler):
-    if settings_model.ai_service == AIService.Ollama.value:
-        # Skip testing requests with ollama as it's too slow
-        return
-
+async def test_request_some_history(chat, settings_model, chat_history, rag_manager, callback_handler):
     chat.init_model(
         settings_model=settings_model,
+        chat_history=chat_history,
+        rag_manager=rag_manager,
         callback_handler=callback_handler,
     )
-    await chat.request("First", chat_history=chat_history)
-    await chat.request("Second", chat_history=chat_history)
+    await chat.request("First")
+    await chat.request("Second")

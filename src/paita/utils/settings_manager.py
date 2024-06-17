@@ -1,4 +1,3 @@
-import json
 import os.path
 from enum import Enum
 from pathlib import Path
@@ -73,8 +72,8 @@ class SettingsManager:
         file_path = Path(config_dir) / SETTINGS_FILE_NAME
         async with aiofiles.open(file_path, "r") as json_file:
             json_data = await json_file.read()
-            json_obj = json.loads(json_data)
-            model: SettingsModel = SettingsModel.model_validate(json_obj)
+            # json_obj = json.loads(json_data)
+            model: SettingsModel = SettingsModel.model_validate_json(json_data)
             return model
 
     @classmethod
@@ -86,6 +85,6 @@ class SettingsManager:
             os.makedirs(config_dir)
 
         async with aiofiles.open(file_path, "w") as json_file:
-            json_data = model.model_dump()
-            json_str = json.dumps(json_data)
-            await json_file.write(json_str)
+            json_data = model.model_dump_json()
+            # json_str = json.dumps(json_data)
+            await json_file.write(json_data)

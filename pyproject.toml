@@ -21,7 +21,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "textual~=0.63",
+  "textual~=0.69",
   "boto3~=1.34",
   "loguru~=0.7",
   "langchain-core~=0.2",

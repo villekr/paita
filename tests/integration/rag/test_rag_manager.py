@@ -3,6 +3,7 @@ from pydantic import ValidationError
 
 from paita.ai.enums import AIService
 from paita.ai.models import get_embeddings
+from paita.rag.models import RAGSources, RAGSource, RAGSourceType
 from paita.rag.rag_manager import RAGManager, RAGManagerModel, RAGVectorStoreType
 
 
@@ -54,24 +55,28 @@ async def test_load_url_impl(rag_manager: RAGManager):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_load(rag_manager: RAGManager):
-    url = "https://www.google.com"
-    docs = await rag_manager.load(url=url, max_depth=1)
-    assert docs is not None
+async def test_read_na(rag_manager: RAGManager):
+    rag_sources = await rag_manager.read()
+    assert rag_sources is not None
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_read(rag_manager: RAGManager):
+    try:
+        await rag_manager.create(url="https://www.google.com", max_depth=1)
+        rag_sources: RAGSources = await rag_manager.read()
+        assert rag_sources is not None
+        assert len(rag_sources.rag_sources) > 0
+        rag_source: RAGSource = rag_sources.rag_sources[0]
+        assert type(rag_source.rag_source_type) is RAGSourceType
+    finally:
+        pass
+        # await delete_folder(rag_manager.file_path, recursive=True)
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_delete(rag_manager: RAGManager):
-    await rag_manager.load(url="https://www.google.com", max_depth=1)
+    await rag_manager.create(url="https://www.google.com", max_depth=1)
     await rag_manager.delete("https://www.google.com")
-
-
-@pytest.mark.integration
-@pytest.mark.asyncio
-async def test_split_and_load(rag_manager: RAGManager):
-    embeddings = get_embeddings(AIService.AWSBedRock.value)
-    urls = ["https://www.google.com"]
-    docs = await rag_manager.load_urls(urls=urls, max_depth=0)
-    vector_store = await rag_manager.load_documents(docs=docs, embeddings=embeddings)
-    assert vector_store is not None

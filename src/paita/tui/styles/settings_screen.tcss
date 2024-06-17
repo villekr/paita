@@ -35,15 +35,11 @@ SettingsScreen {
 }
 
 .settings_textarea {
-    height: 6;
+    height: 5;
     margin: 0 1 1 1;
     align_horizontal: center;
     border: tall black;
     background: $panel;
-}
-
-.settings_textarea_error {
-    background: $error;
 }
 
 .settings_input {
@@ -52,6 +48,10 @@ SettingsScreen {
     align_horizontal: left;
     border: tall black;
     background: $panel;
+}
+
+.settings_input_error {
+    background: $error;
 }
 
 .settings_small_input {
@@ -83,6 +83,6 @@ SettingsScreen {
 }
 
 Button {
-    width: 20%;
+    width: 10%;
     margin: 0 1 0 1;
 }

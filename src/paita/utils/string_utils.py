@@ -57,13 +57,13 @@ def dict_to_str(value: dict) -> str:
     return ",".join(f"{key}={json.dumps(val)}" for key, val in filtered_items)
 
 
-def fix_url(url: str) -> str:
+def fix_url(url: str, protocol: str = "http") -> str:
     if not url.startswith(("http://", "https://")):
-        url = f"https://{url}"
+        url = f"{protocol}://{url}"
     return url
 
 
-def split_and_validate(source: str) -> [str]:
+def split_and_fix(source: str) -> [str]:
     pattern = r"[,\s;]+"
     urls = re.split(pattern, source)
 

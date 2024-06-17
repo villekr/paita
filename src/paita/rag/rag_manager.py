@@ -1,4 +1,4 @@
-from enum import Enum
+import contextlib
 from pathlib import Path
 from typing import Iterator
 
@@ -22,17 +22,9 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.vectorstores import VectorStore
 from pydantic import BaseModel, ConfigDict
 
+from paita.rag.models import RAGSource, RAGSources, RAGSourceType, RAGVectorStoreType
 from paita.utils.json_utils import JsonUtils
-from paita.utils.logger import log
 from paita.utils.settings_model import SettingsModel
-
-
-class RAGSourceType(Enum):
-    web_page = "web_page"
-
-
-class RAGVectorStoreType(Enum):
-    CHROMA = "chroma"
 
 
 class RAGManagerModel(BaseModel):
@@ -46,17 +38,16 @@ class RAGManagerModel(BaseModel):
 
 class RAGManager:
     def __init__(self, model: RAGManagerModel):
-        log.debug(f"{model=}")
         self.model = model
         config_dir = user_config_dir(appname=self.model.app_name, appauthor=self.model.app_author)
-        self.file_path = Path(config_dir) / "rag_chroma"
+        self.file_path = Path(config_dir) / "rag"
         self.vectorstore = self.create_vectorstore(
             vector_store_type=self.model.vector_store_type,
             persist_directory=str(self.file_path),
             embeddings=self.model.embeddings,
         )
         self.json_utils = JsonUtils(
-            app_name=self.model.app_name, app_author=self.model.app_author, file_name="rag_sources"
+            app_name=self.model.app_name, app_author=self.model.app_author, file_name="rag_sources.json"
         )
 
     def chain(
@@ -95,18 +86,43 @@ class RAGManager:
 
         return create_retrieval_chain(history_aware_retriever, question_answer_chain_w_history)
 
-    async def load(self, *, url: str, max_depth: int = 0):
+    async def create(self, *, url: str, max_depth: int = 0):
         docs = await self.load_url_impl(url=url, max_depth=max_depth)
         ids = await self._load_documents(docs=docs)
-        rag_source = await self.json_utils.load()
-        rag_source[url] = ids
-        await self.json_utils.save(rag_source)
+        rag_sources: RAGSources = RAGSources()
+        with contextlib.suppress(FileNotFoundError):
+            rag_sources = await self.json_utils.read(rag_sources)
 
-    async def delete(self, *, url: str):
-        rag_source = await self.json_utils.load()
-        if url in rag_source:
-            del rag_source[url]
-        await self.json_utils.save(rag_source)
+        rag_sources.rag_sources.append(
+            RAGSource(
+                rag_source_type=RAGSourceType.web_page,
+                rag_source=url,
+                rag_source_max_depth=max_depth,
+                rag_document_ids=ids,
+            )
+        )
+        await self.json_utils.write(rag_sources)
+
+    async def read(self) -> RAGSources:
+        rag_sources: RAGSources = RAGSources()
+        with contextlib.suppress(FileNotFoundError):
+            return await self.json_utils.read(rag_sources)
+        return rag_sources
+
+    async def delete(self, url: str):
+        rag_sources: RAGSources = RAGSources()
+        with contextlib.suppress(FileNotFoundError):
+            rag_sources = await self.json_utils.read(rag_sources)
+
+        new_rag_sources = []
+        for rag_source in rag_sources.rag_sources:
+            if rag_source.rag_source != url:
+                rag_sources.append(rag_source)
+            else:
+                await self.vectorstore.adelete(ids=rag_source.rag_document_ids)
+
+        rag_sources.rag_sources = new_rag_sources
+        await self.json_utils.write(rag_sources)
 
     async def _load_documents(self, *, docs: Iterator[Document]) -> [str]:
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)

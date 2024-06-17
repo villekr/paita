@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 from cache3 import DiskCache
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Container, Horizontal, Vertical, VerticalScroll
+from textual.containers import Container, Horizontal, Vertical, VerticalScroll, Widget
 from textual.css.query import NoMatches
 from textual.screen import ModalScreen
 from textual.validation import Function, Number
@@ -14,15 +14,14 @@ from textual.widgets import Button, Checkbox, Header, Input, Select, TextArea
 import paita.localization.labels as label
 from paita.ai.enums import Tag
 from paita.localization import labels
+from paita.rag.models import RAGSource, RAGSources
 from paita.rag.rag_manager import RAGManager, RAGSourceType
-from paita.tui.factory import create_rag_manager
 from paita.tui.wait_screen import WaitScreen
 from paita.utils.logger import log
 from paita.utils.settings_manager import SettingsManager, SettingsModel
 from paita.utils.string_utils import dict_to_str, str_to_dict, str_to_num, to_str, validate_and_fix_url
 
 RAG_WIDGET_IDS = [
-    # "ai_rag_enabled",
     "ai_rag_type",
     "ai_rag_source",
     "ai_rag_source_max_depth",
@@ -59,12 +58,6 @@ class SettingsScreen(ModalScreen[bool]):
         self._ai_models: List[Tuple[str, str]] = self.cache.get(self.model.ai_service, [], tag=Tag.AI_MODELS.value)
         if self.model.ai_model not in self._ai_models:
             self.model.ai_model = self._ai_models[0]
-
-        rag_types = [item.value for item in RAGSourceType]
-        if self.model.ai_rag_type is None:
-            self.model.ai_rag_type = rag_types[0]
-
-        self.ai_rag_source_loaded = self.model.ai_rag_source is not None  # TODO: simplified assumption about load state
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -136,53 +129,13 @@ class SettingsScreen(ModalScreen[bool]):
                     #     max_length=4,
                     # )
 
-                with Vertical(classes="settings_invisible_block"):
+                with Vertical(classes="settings_invisible_block", id="ai_rag_container"):
                     yield Checkbox(
                         label.AI_RAG_ENABLED,
                         value=self.model.ai_rag_enabled,
                         id="ai_rag_enabled",
                         classes="settings_checkbox",
                     )
-                    with Horizontal(classes="settings_invisible_block", id="ai_rag_sources"):
-                        yield Select(
-                            [(item.value, item.value) for item in RAGSourceType],
-                            value=self.model.ai_rag_type,
-                            prompt="AI Rag Type",
-                            id="ai_rag_type",
-                            classes="settings_small_option",
-                            allow_blank=False,
-                        )
-                        yield Input(
-                            placeholder=label.AI_RAG_SOURCE_MAX_DEPTH,
-                            value=str(self.model.ai_rag_source_max_depth),
-                            id="ai_rag_source_max_depth",
-                            classes="settings_small_input",
-                            type="integer",
-                            validators=[Number(minimum=1, maximum=5)],
-                            max_length=1,
-                        )
-
-                        # TODO: Create a separate component to handle RAG source(s)
-                        # ai_rag_source: not None
-                        # - input = disable
-                        # - button = "reset"
-                        # ai_rag_source: None
-                        # - input = enabled
-                        # - button = "load"
-                        value = self.model.ai_rag_source
-                        ai_rag_source = Input(
-                            placeholder=label.AI_RAG_SOURCE,
-                            value=value if value else "",
-                            id="ai_rag_source",
-                            classes="settings_input",
-                        )
-                        ai_rag_source.disabled = bool(value)
-                        yield ai_rag_source
-                        if value:
-                            yield Button(label="Reset", variant="warning", id="ai_rag_reset")
-                        else:
-                            yield Button(label="Load", variant="success", id="ai_rag_load", disabled=True)
-
                     yield TextArea(
                         text=self.model.ai_rag_contextualize_prompt,
                         id="ai_rag_contextualize_prompt",
@@ -209,6 +162,7 @@ class SettingsScreen(ModalScreen[bool]):
             return True
 
     async def on_mount(self) -> None:
+        ai_rag_disabled = not self.model.ai_rag_enabled
         if self.model.ai_service is Select.BLANK or self.model.ai_model is Select.BLANK:
             self.query_one("#apply").disabled = True
 
@@ -216,24 +170,70 @@ class SettingsScreen(ModalScreen[bool]):
                 with contextlib.suppress(NoMatches):
                     self.query_one(f"#{rag_widget_id}").disabled = True
 
+            ai_rag_disabled = True
             self.query_one("#ai_rag_enabled").disabled = True
 
-        if self.model.ai_rag_enabled is False:
-            for rag_widget_id in RAG_WIDGET_IDS:
-                with contextlib.suppress(NoMatches):
-                    self.query_one(f"#{rag_widget_id}").disabled = True
+        # TODO: Create a separate component to handle RAG source(s)
+        self.query_one("#ai_rag_contextualize_prompt").disabled = ai_rag_disabled
+        self.query_one("#ai_rag_system_prompt").disabled = ai_rag_disabled
 
-            # ai_rag_load = self.query_one(f"#ai_rag_load")
-            # if self.query_one("#ai_rag_source").value != "":
-            #     ai_rag_load.disabled = False
-            # else:
-            #     ai_rag_load.disabled = True
+        rag_sources: RAGSources = await self.rag_manager.read()
+        rag_source: RAGSource = rag_sources.rag_sources[-1] if rag_sources.rag_sources else RAGSource()
 
+        widgets: [Widget] = [
+            Select(
+                [(item.value, item.value) for item in RAGSourceType],
+                value=rag_source.rag_source_type.value,
+                prompt="AI Rag Type",
+                id="ai_rag_type",
+                classes="settings_small_option",
+                allow_blank=False,
+                disabled=ai_rag_disabled,
+            ),
+            Input(
+                placeholder=label.AI_RAG_SOURCE_MAX_DEPTH,
+                value=str(rag_source.rag_source_max_depth),
+                id="ai_rag_source_max_depth",
+                classes="settings_small_input",
+                type="integer",
+                validators=[Number(minimum=1, maximum=5)],
+                max_length=1,
+                disabled=ai_rag_disabled,
+            ),
+        ]
+
+        # ai_rag_source: not None
+        # - input = disable
+        # - button = "reset"
+        # ai_rag_source: None
+        # - input = enabled
+        # - button = "load"
+        input_disabled = ai_rag_disabled or bool(rag_source.rag_source)
+        ai_rag_source = Input(
+            placeholder=label.AI_RAG_SOURCE,
+            value=rag_source.rag_source if rag_source.rag_source else "",
+            id="ai_rag_source",
+            classes="settings_input",
+            disabled=input_disabled,
+        )
+        widgets.append(ai_rag_source)
+
+        button_disabled = ai_rag_disabled
+        if not ai_rag_disabled and ai_rag_source.value == "":
+            button_disabled = True
+        if bool(rag_source.rag_source):
+            widgets.append(Button(label="Reset", variant="warning", id="ai_rag_reset", disabled=button_disabled))
+        else:
+            widgets.append(Button(label="Load", variant="success", id="ai_rag_load", disabled=button_disabled))
+
+        horizontal = Horizontal(classes="settings_invisible_block", id="ai_rag_sources")
+        rag_container = self.query_one("#ai_rag_container")
+        await rag_container.mount(horizontal)
+        await horizontal.mount(*widgets)
         self.query_one("#ai_persona").disabled = self.model.ai_rag_enabled
 
     @on(Input.Changed)
     async def input_changed(self, event: Input.Changed) -> None:
-        log.debug(f"{event=}")
         if event.input.id == "ai_rag_source":
             try:
                 ai_rag_load = self.query_one("#ai_rag_load")
@@ -246,27 +246,23 @@ class SettingsScreen(ModalScreen[bool]):
 
     @on(Checkbox.Changed)
     async def checkbox_changed(self, event: Checkbox.Changed) -> None:
-        log.debug(f"{event=}")
         if event.checkbox.id == "ai_rag_enabled":
             for rag_widget_id in RAG_WIDGET_IDS:
                 with contextlib.suppress(NoMatches):
                     self.query_one(f"#{rag_widget_id}").disabled = not event.checkbox.value
 
-            # Keep rag source input disabled if we think it's loaded
-            # also if there's load button keep it disabled if there's content
+            # Keep 'rag source'-input field disabled when we think source is loaded
+            # If there's 'load'-button keep it disabled if 'rag source' field has content
             if event.checkbox.value:
                 ai_rag_source = self.query_one("#ai_rag_source")
-                if self.ai_rag_source_loaded:
-                    ai_rag_source.disabled = True
-                else:
-                    try:
-                        ai_rag_load = self.query_one("#ai_rag_load")
-                        if ai_rag_source.value != "":
-                            ai_rag_load.disabled = False
-                        else:
-                            ai_rag_load.disabled = True
-                    except NoMatches:
-                        pass
+                try:
+                    ai_rag_load = self.query_one("#ai_rag_load")
+                    if ai_rag_source.value != "":
+                        ai_rag_load.disabled = False
+                    else:
+                        ai_rag_load.disabled = True
+                except NoMatches:
+                    pass
 
             self.query_one("#ai_persona").disabled = event.checkbox.value
 
@@ -281,13 +277,6 @@ class SettingsScreen(ModalScreen[bool]):
             models = self.cache.get(event.value, Select.BLANK, tag=Tag.AI_MODELS.value)
             widget: Select = self.query_one("#ai_model")
             widget.set_options((item, item) for item in models)
-
-            self.rag_manager = create_rag_manager(
-                app_name=labels.APP_TITLE,
-                app_author=labels.APP_AUTHOR,
-                settings_model=self.settings_manager.model,
-                cache=self.cache,
-            )
         elif event.control.id == "ai_model":
             value = event.value
             if value == self.model.ai_model:
@@ -299,8 +288,6 @@ class SettingsScreen(ModalScreen[bool]):
             log.error(f"Undefined {event.control.id=}")
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
-        log.debug(f"{event=}")
-
         # PoC RAG approach, we always update model and save
         model: SettingsModel = SettingsModel(
             ai_service=self.query_one("#ai_service").value,
@@ -324,11 +311,7 @@ class SettingsScreen(ModalScreen[bool]):
             model.ai_rag_contextualize_prompt = value
         if (value := self.query_one("#ai_rag_system_prompt").text) != "":
             model.ai_rag_system_prompt = value
-        model.ai_rag_type = self.query_one("#ai_rag_type").value
-        # TODO: PoC way to handle rag load state
-        if self.ai_rag_source_loaded and (value := self.query_one("#ai_rag_source").value) != "":
-            model.ai_rag_source = value
-        model.ai_rag_source_max_depth = str_to_num(self.query_one("#ai_rag_source_max_depth").value)
+
         self.settings_manager.model = model
 
         if event.button.id == "apply":
@@ -339,13 +322,12 @@ class SettingsScreen(ModalScreen[bool]):
             if (value := ai_rag_source.value) != "":
                 try:
                     url = validate_and_fix_url(value)
-                    ai_rag_source.remove_class("settings_textarea_error")
+                    ai_rag_source.remove_class("settings_input_error", update=True)
                     ai_rag_source.value = url
 
                     max_depth = str_to_num(self.query_one("#ai_rag_source_max_depth").value)
                     await self.parent.push_screen(WaitScreen(labels.APP_RAG_PROCESS_DOCUMENTS))
-                    await self.rag_manager.load(url=url, max_depth=max_depth)
-                    self.ai_rag_source_loaded = True
+                    await self.rag_manager.create(url=url, max_depth=max_depth)
                     await event.control.remove()
                     await self.mount(Button(label="Reset", variant="warning", id="ai_rag_reset"), after=ai_rag_source)
 
@@ -353,12 +335,10 @@ class SettingsScreen(ModalScreen[bool]):
 
                     self.parent.pop_screen()
                 except ValueError:
-                    log.exception(f"Invalid urls: {value}")
-                    ai_rag_source.add_class("settings_textarea_error")
+                    ai_rag_source.add_class("settings_input_error", update=True)
         elif event.control.id == "ai_rag_reset":
-            self.ai_rag_source_loaded = False
             ai_rag_source = self.query_one("#ai_rag_source")
-            await self.rag_manager.delete(url)
+            await self.rag_manager.delete(ai_rag_source.value)
             ai_rag_source.value = ""
             ai_rag_source.disabled = False
             await event.control.remove()

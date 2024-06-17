@@ -93,14 +93,17 @@ class ChatApp(App):
             await self.process_conversation()
 
     def action_settings(self, allow_cancel: bool = False) -> None:  # noqa: FBT001, FBT002
+        settings_screen = SettingsScreen(
+            settings_manager=self._settings_manager,
+            rag_manager=self._rag_manager,
+            cache=self._cache,
+            allow_cancel=allow_cancel,
+        )
+        callback = self.exit_settings
+        log.info(f"{callback=}")
         self.push_screen(
-            SettingsScreen(
-                settings_manager=self._settings_manager,
-                rag_manager=self._rag_manager,
-                cache=self._cache,
-                allow_cancel=allow_cancel,
-            ),
-            self.exit_settings,
+            screen=settings_screen,
+            callback=callback,
         )
 
     async def action_clear(self) -> None:
@@ -146,6 +149,7 @@ class ChatApp(App):
                 settings_model=self._settings_manager.model,
                 cache=self._cache,
             )
+            await self._rag_manager.read()
             self.init_chat()
         except FileNotFoundError:
             self._settings_manager = SettingsManager(
@@ -153,6 +157,13 @@ class ChatApp(App):
                 app_name=labels.APP_TITLE,
                 app_author=labels.APP_AUTHOR,
             )
+            self._rag_manager = create_rag_manager(
+                app_name=labels.APP_TITLE,
+                app_author=labels.APP_AUTHOR,
+                settings_model=self._settings_manager.model,
+                cache=self._cache,
+            )
+            await self._rag_manager.read()
             self.action_settings(allow_cancel=False)
 
     def init_chat(self):
@@ -211,9 +222,13 @@ class ChatApp(App):
         try:
             await self._chat.request(question)
         except ValueError as e:
-            log.info(str(e))
+            error = str(e)
+            log.info(error)
+            self.push_screen(ErrorScreen(error), self.exit_error_screen)
         except Exception as e:  # noqa: BLE001
+            error = str(e)
             log.exception(e)
+            self.push_screen(ErrorScreen(error), self.exit_error_screen)
 
     def toggle_widgets(self, *widgets: Widget) -> None:
         for w in widgets:

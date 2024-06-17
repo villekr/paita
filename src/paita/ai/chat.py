@@ -9,7 +9,6 @@ from paita.ai.chat_history import ChatHistory
 from paita.ai.models import AIService
 from paita.ai.services import bedrock, ollama, openai
 from paita.rag.rag_manager import RAGManager
-from paita.utils.logger import log
 from paita.utils.settings_model import SettingsModel
 
 if TYPE_CHECKING:
@@ -84,7 +83,6 @@ class Chat:
     async def request(self, data: str) -> str:
         await self._trim_history(self._chat_history, max_length=self._settings_model.ai_history_depth)
 
-        log.debug(self._chat_history.history)
         if self._settings_model.ai_streaming and not bedrock.BEDROCK_DISABLE_STREAMING:
             async for _ in self._chain.astream(
                 {"input": data},
@@ -105,7 +103,6 @@ class Chat:
 
         await chat_history.history.aclear()
         trim_history_messages = stored_messages[-max_length:]
-        log.debug(f"{trim_history_messages=}")
         await chat_history.history.aadd_messages(trim_history_messages)
 
     async def _summarize_messages(self, chat_history: ChatHistory, *, max_length: int = 20):

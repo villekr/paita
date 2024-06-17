@@ -28,6 +28,3 @@ If you don't know the answer, just say that you don't know. \
 Use two sentences maximum and keep the answer concise.\
 
 {context}"""
-    ai_rag_type: Optional[str] = None
-    ai_rag_source: Optional[str] = None
-    ai_rag_source_max_depth: Optional[int] = 1
