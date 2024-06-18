@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 from langchain_community.chat_models.ollama import ChatOllama
 from langchain_community.embeddings.ollama import OllamaEmbeddings
@@ -21,8 +22,8 @@ class Ollama(Service):
             return []
 
     @classmethod
-    def embeddings(cls) -> OllamaEmbeddings:
-        return OllamaEmbeddings()
+    def embeddings(cls, model_id: Optional[str] = None) -> OllamaEmbeddings:
+        return OllamaEmbeddings(model=model_id) if model_id else OllamaEmbeddings()
 
     def chat_model(self) -> ChatOllama:
         model_kwargs = {
@@ -36,7 +37,7 @@ class Ollama(Service):
             model_kwargs.update(self._settings_model.ai_model_kwargs)
         log.debug(f"{model_kwargs=}")
         chat_ollama = ChatOllama(
-            model_id=self._settings_model.ai_model,
+            model=self._settings_model.ai_model,
             streaming=self._settings_model.ai_streaming,
             model_kwargs=model_kwargs,
             # max_tokens=settings_model.ai_max_tokens,

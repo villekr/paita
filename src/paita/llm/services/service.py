@@ -1,3 +1,5 @@
+from typing import Optional
+
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models.chat_models import BaseChatModel
 
@@ -15,7 +17,7 @@ class Service:
         raise NotImplementedError
 
     @classmethod
-    def embeddings(cls) -> Embeddings:
+    def embeddings(cls, model_id: Optional[str] = None) -> Embeddings:
         raise NotImplementedError
 
     def chat_model(self) -> BaseChatModel:

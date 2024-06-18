@@ -147,13 +147,12 @@ class ChatApp(App):
                 app_name=labels.APP_TITLE,
                 app_author=labels.APP_AUTHOR,
                 settings_model=self._settings_manager.model,
-                cache=self._cache,
             )
             await self._rag_manager.read()
             self.init_chat()
         except FileNotFoundError:
             self._settings_manager = SettingsManager(
-                model=SettingsModel(),
+                cache=self._cache,
                 app_name=labels.APP_TITLE,
                 app_author=labels.APP_AUTHOR,
             )
@@ -161,7 +160,6 @@ class ChatApp(App):
                 app_name=labels.APP_TITLE,
                 app_author=labels.APP_AUTHOR,
                 settings_model=self._settings_manager.model,
-                cache=self._cache,
             )
             await self._rag_manager.read()
             self.action_settings(allow_cancel=False)

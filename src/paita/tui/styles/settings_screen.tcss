@@ -3,7 +3,7 @@ SettingsScreen {
 }
 
 .settings {
-    width: 75%;
+    width: 95%;
     height: 95%;
     align: center middle;
     background: $surface;
@@ -35,7 +35,7 @@ SettingsScreen {
 }
 
 .settings_textarea {
-    height: 4;
+    height: 5;
     margin: 0 1 1 1;
     align_horizontal: center;
     border: tall black;
