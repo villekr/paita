@@ -332,10 +332,10 @@ class SettingsScreen(ModalScreen[bool]):
                     await self.mount(Button(label="Reset", variant="warning", id="ai_rag_reset"), after=ai_rag_source)
 
                     await self.settings_manager.save()
-
-                    self.parent.pop_screen()
                 except ValueError:
                     ai_rag_source.add_class("settings_input_error", update=True)
+
+                self.parent.pop_screen()
         elif event.control.id == "ai_rag_reset":
             ai_rag_source = self.query_one("#ai_rag_source")
             await self.rag_manager.delete(ai_rag_source.value)

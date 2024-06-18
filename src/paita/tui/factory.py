@@ -1,25 +1,14 @@
-from typing import List, Tuple
-
-from cache3 import DiskCache
-
-from paita.llm.enums import Tag
 from paita.llm.models import get_embeddings
 from paita.rag.rag_manager import RAGManager, RAGManagerModel, RAGVectorStoreType
 from paita.utils.settings_model import SettingsModel
 
 
-def create_rag_manager(
-    *, app_name: str, app_author: str, settings_model: SettingsModel, cache: DiskCache
-) -> RAGManager:
+def create_rag_manager(*, app_name: str, app_author: str, settings_model: SettingsModel) -> RAGManager:
+    # TODO: Refactor, identical code with settings manager
     ai_service = settings_model.ai_service
-    ai_services: List[Tuple[str, str]] = list(cache.keys(tag=Tag.AI_MODELS.value))
-    if ai_service not in ai_services:
-        ai_service = ai_services[0]
-    if ai_service is None:
-        error_str = f"{ai_service=} must be defined"
-        raise ValueError(error_str)
+    ai_model = settings_model.ai_model
 
-    embeddings = get_embeddings(ai_service)
+    embeddings = get_embeddings(ai_service=ai_service, ai_model=ai_model)
     try:
         vector_store_type = RAGVectorStoreType(settings_model.ai_rag_vector_store_type)
     except ValueError:

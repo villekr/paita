@@ -32,8 +32,8 @@ class Bedrock(Service):
             return []
 
     @classmethod
-    def embeddings(cls) -> BedrockEmbeddings:
-        return BedrockEmbeddings()
+    def embeddings(cls, model_id: Optional[str] = None) -> BedrockEmbeddings:
+        return BedrockEmbeddings(model_id=model_id) if model_id else BedrockEmbeddings()
 
     def chat_model(self) -> ChatBedrock:
         model_kwargs = {

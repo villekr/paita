@@ -1,11 +1,14 @@
 import os.path
 from enum import Enum
 from pathlib import Path
+from typing import List, Optional, Tuple
 
 import aiofiles
 from aiofiles import os as aiofiles_os
 from appdirs import user_config_dir
+from cache3 import DiskCache
 
+from paita.llm.enums import Tag
 from paita.utils.settings_model import SettingsModel
 
 
@@ -26,15 +29,32 @@ class SettingsManager:
     def __init__(
         self,
         *,
-        model: SettingsModel,
+        model: Optional[SettingsModel] = None,
+        cache: Optional[DiskCache] = None,
         app_name: str,
         app_author: str,
         backend_type: SettingsBackendType = SettingsBackendType.LOCAL,
     ):
-        self.model: SettingsModel = model
         self._app_name: str = app_name
         self._app_author: str = app_author
         self._backend_type: SettingsBackendType = backend_type
+
+        self.model: SettingsModel = model
+
+        if not self.model:
+            if not cache:
+                err = "Cache not provided"
+                raise ValueError(err)
+            ai_services: List[Tuple[str, str]] = list(cache.keys(tag=Tag.AI_MODELS.value))
+            ai_service = ai_services[0]
+
+            ai_models: List[Tuple[str, str]] = cache.get(ai_service, [], tag=Tag.AI_MODELS.value)
+            ai_model = ai_models[0]
+
+            self.model = SettingsModel(
+                ai_service=ai_service,
+                ai_model=ai_model,
+            )
 
     @classmethod
     async def load(

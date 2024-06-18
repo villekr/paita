@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from paita.llm.enums import AIService
 from paita.llm.services import bedrock, ollama, openai
@@ -22,13 +22,13 @@ async def list_models(ai_service: str):
     raise ValueError(msg)
 
 
-def get_embeddings(ai_service: str):
+def get_embeddings(*, ai_service: str, ai_model: Optional[str] = None):
     if ai_service == AIService.AWSBedRock.value:
-        return bedrock.Bedrock.embeddings()
+        return bedrock.Bedrock.embeddings(ai_model)
     if ai_service == AIService.OpenAI.value:
-        return openai.OpenAI.embeddings()
+        return openai.OpenAI.embeddings(ai_model)
     if ai_service == AIService.Ollama.value:
-        return ollama.Ollama.embeddings()
+        return ollama.Ollama.embeddings(ai_model)
     # if ai_service == AIService.Mock:
     #     return [
     #         "mock_model_1",

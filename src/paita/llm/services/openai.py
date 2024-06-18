@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from langchain_openai import ChatOpenAI
 from langchain_openai.embeddings import OpenAIEmbeddings
@@ -27,8 +27,8 @@ class OpenAI(Service):
             return []
 
     @classmethod
-    def embeddings(cls) -> OpenAIEmbeddings:
-        return OpenAIEmbeddings()
+    def embeddings(cls, model_id: Optional[str] = None) -> OpenAIEmbeddings:
+        return OpenAIEmbeddings(model=model_id) if model_id else OpenAIEmbeddings()
 
     def chat_model(self) -> ChatOpenAI:
         model_kwargs = {

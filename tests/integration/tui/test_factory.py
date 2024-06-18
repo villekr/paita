@@ -28,12 +28,11 @@ def cache() -> DiskCache:
 
 
 @pytest.mark.integration
-def test_create_rag_manager(cache):
+def test_create_rag_manager():
     settings_model = SettingsModel(ai_service=AIService.AWSBedRock)
     rag_manager = create_rag_manager(
         app_name="test_rag_manager",
         app_author="unit_test_author",
         settings_model=settings_model,
-        cache=cache,
     )
     assert rag_manager is not None
