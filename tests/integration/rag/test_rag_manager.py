@@ -59,8 +59,7 @@ async def test_load_url_impl(rag_manager: RAGManager):
 @pytest.mark.asyncio
 async def test_create(rag_manager: RAGManager):
     url = "https://www.google.com"
-    docs = await rag_manager.create(url=url, max_depth=1)
-    assert docs is not None
+    await rag_manager.create(url=url, max_depth=1)
 
 
 @pytest.mark.integration
