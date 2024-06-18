@@ -20,12 +20,12 @@ def rag_manager() -> RAGManager:
 
 
 @pytest.mark.integration
-def test_create(rag_manager: RAGManager):
+def test_rag_manager(rag_manager: RAGManager):
     assert rag_manager is not None
 
 
 @pytest.mark.integration
-def test_create_invalid():
+def test_rag_manager_invalid():
     with pytest.raises(ValidationError):
         return RAGManager(
             RAGManagerModel(
@@ -52,6 +52,14 @@ def test_create_invalid():
 async def test_load_url_impl(rag_manager: RAGManager):
     url = "https://www.google.com"
     docs = await rag_manager.load_url_impl(url=url, max_depth=1)
+    assert docs is not None
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_create(rag_manager: RAGManager):
+    url = "https://www.google.com"
+    docs = await rag_manager.create(url=url, max_depth=1)
     assert docs is not None
 
 
