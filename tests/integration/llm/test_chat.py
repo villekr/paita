@@ -27,7 +27,7 @@ def rag_manager(request):
         RAGManagerModel(
             app_name="test_rag_manager",
             app_author="unit_test_author",
-            embeddings=get_embeddings(key),
+            embeddings=get_embeddings(ai_service=key),
             vector_store_type=RAGVectorStoreType.CHROMA,
         )
     )

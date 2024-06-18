@@ -13,7 +13,7 @@ def rag_manager() -> RAGManager:
         RAGManagerModel(
             app_name="test_rag_manager",
             app_author="unit_test_author",
-            embeddings=get_embeddings(AIService.AWSBedRock.value),
+            embeddings=get_embeddings(ai_service=AIService.AWSBedRock.value),
             vector_store_type=RAGVectorStoreType.CHROMA,
         )
     )
@@ -31,7 +31,7 @@ def test_create_invalid():
             RAGManagerModel(
                 app_name=None,
                 app_author="unit_test_author",
-                embeddings=get_embeddings(AIService.AWSBedRock.value),
+                embeddings=get_embeddings(ai_service=AIService.AWSBedRock.value),
                 vector_store_type=RAGVectorStoreType.CHROMA,
             )
         )
@@ -41,7 +41,7 @@ def test_create_invalid():
             RAGManagerModel(
                 app_name="test_rag_manager",
                 app_author="unit_test_author",
-                embeddings=get_embeddings(AIService.AWSBedRock.value),
+                embeddings=get_embeddings(ai_service=AIService.AWSBedRock.value),
                 vector_store_type="something",
             )
         )
