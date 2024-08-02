@@ -1,6 +1,6 @@
 import pytest
 
-from paita.rag.models import RAGSource, RAGSources, RAGSourceType
+from paita.settings.rag_settings import RAGSource, RAGSources, RAGSourceType
 from paita.utils.json_utils import JsonUtils
 
 APP_NAME = "TestApp"

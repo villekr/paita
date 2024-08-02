@@ -5,8 +5,8 @@ import pytest
 from cache3 import DiskCache
 
 from paita.llm.enums import AIService, Tag
+from paita.settings.llm_settings import SettingsModel
 from paita.tui.factory import create_rag_manager
-from paita.utils.settings_model import SettingsModel
 
 MODELS_A = ["modelA1", "modelA2", "modelA3"]
 MODELS_B = ["modelB1", "modelB2", "modelB3"]

@@ -1,0 +1,88 @@
+SettingsScreen {
+    align: center middle;
+}
+
+.settings {
+    width: 95%;
+    height: 95%;
+    align: center middle;
+    background: $surface;
+    border: tall $accent;
+    margin: 0 1 1 1;
+}
+
+.settings_label {
+    align_horizontal: right;
+    margin: 0 0 0 0;
+}
+
+.settings_option {
+    margin: 0 1 1 1;
+    width: 35%;
+    align_horizontal: center;
+}
+
+.settings_long_option {
+    margin: 0 1 1 1;
+    width: 35%;
+    align_horizontal: center;
+}
+
+.settings_small_option {
+    margin: 0 1 1 1;
+    width: 16%;
+    align_horizontal: center;
+}
+
+.settings_textarea {
+    height: 5;
+    margin: 0 1 1 1;
+    align_horizontal: center;
+    border: tall black;
+    background: $panel;
+}
+
+.settings_input {
+    margin: 0 1 1 1;
+    width: 50%;
+    align_horizontal: left;
+    border: tall black;
+    background: $panel;
+}
+
+.settings_input_error {
+    background: $error;
+}
+
+.settings_small_input {
+    margin: 0 1 1 1;
+    width: 8%;
+    align_horizontal: left;
+    border: tall black;
+    background: $panel;
+}
+
+.settings_checkbox {
+    margin: 0 1 1 1;
+    width: 16%;
+    align_horizontal: center;
+    border: tall black;
+    background: $panel;
+}
+
+.settings_block {
+    align_horizontal: center;
+    margin: 0 1 0 1;
+    height: auto;
+}
+
+.settings_invisible_block {
+    align_horizontal: left;
+    margin: 0 0 0 0;
+    height: auto;
+}
+
+Button {
+    width: 10%;
+    margin: 0 1 0 1;
+}

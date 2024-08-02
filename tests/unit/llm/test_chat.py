@@ -3,7 +3,7 @@ import pytest
 from paita.llm.chat import AsyncHandler, Chat
 from paita.llm.chat_history import ChatHistory
 from paita.llm.enums import AIService
-from paita.utils.settings_model import SettingsModel
+from paita.settings.llm_settings import SettingsModel
 
 ai_service_models = {
     AIService.AWSBedRock.value: "anthropic.claude-v2",

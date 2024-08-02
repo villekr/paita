@@ -8,8 +8,8 @@ from paita.llm.callbacks import AsyncHandler
 from paita.llm.chat_history import ChatHistory
 from paita.llm.models import AIService
 from paita.llm.services import bedrock, ollama, openai
-from paita.rag.rag_manager import RAGManager
-from paita.utils.settings_model import SettingsModel
+from paita.settings.rag_settings import RAG
+from paita.settings.llm_settings import SettingsModel
 
 if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
@@ -28,7 +28,7 @@ class Chat:
         self._chat_model: BaseChatModel = None
         self._settings_model: SettingsModel = None
         self._chat_history: ChatHistory = None
-        self._rag_manager: RAGManager = None
+        self._rag: RAG = None
         self._chain: Runnable = None
         self._callback_handler: AsyncHandler = None
         self.parser: StrOutputParser = StrOutputParser()
@@ -38,12 +38,12 @@ class Chat:
         *,
         settings_model: SettingsModel,
         chat_history: ChatHistory,
-        rag_manager: RAGManager = None,
+        rag: RAG = None,
         callback_handler: AsyncHandler,
     ):
         self._settings_model = settings_model
         self._chat_history = chat_history
-        self._rag_manager = rag_manager
+        self._rag = rag
         self._callback_handler = callback_handler
 
         if settings_model.ai_service == AIService.AWSBedRock.value:
@@ -56,9 +56,9 @@ class Chat:
             msg = f"Invalid AI Service {settings_model.ai_service}"
             raise ValueError(msg)
         self._chat_model = service.chat_model()
-        if self._settings_model.ai_rag_enabled:
-            self._chain = self._rag_manager.chain(
-                chat=self._chat_model, chat_history=self._chat_history.history, settings_model=self._settings_model
+        if self._rag is not None and self._rag.rag_model.rag_enabled:
+            self._chain = self._rag.chain(
+                chat=self._chat_model, chat_history=self._chat_history.history,
             )
         else:
             prompt = ChatPromptTemplate.from_messages(

@@ -4,8 +4,8 @@ from paita.llm.chat import AsyncHandler, Chat
 from paita.llm.chat_history import ChatHistory
 from paita.llm.enums import AIService
 from paita.llm.models import get_embeddings
-from paita.rag.rag_manager import RAGManager, RAGManagerModel, RAGVectorStoreType
-from paita.utils.settings_model import SettingsModel
+from paita.settings.rag_settings import RAG, RAGModel, RAGVectorStoreType
+from paita.settings.llm_settings import SettingsModel
 
 ai_service_models = {
     # AIService.AWSBedRock.value: "anthropic.claude-v2",
@@ -23,8 +23,8 @@ def settings_model(request):
 @pytest.fixture(params=list(ai_service_models.items()))
 def rag_manager(request):
     key, value = request.param
-    return RAGManager(
-        RAGManagerModel(
+    return RAG(
+        RAGModel(
             app_name="test_rag_manager",
             app_author="unit_test_author",
             embeddings=get_embeddings(ai_service=key),
