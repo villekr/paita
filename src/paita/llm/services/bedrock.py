@@ -7,8 +7,7 @@ from typing import Optional
 
 import boto3
 from botocore.config import Config
-from langchain_aws import ChatBedrock
-from langchain_community.embeddings import BedrockEmbeddings
+from langchain_aws import BedrockEmbeddings, ChatBedrock
 
 from paita.llm.services.service import Service
 from paita.utils.logger import log
