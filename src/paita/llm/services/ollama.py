@@ -1,8 +1,7 @@
 import os
 from typing import Optional
 
-from langchain_community.chat_models.ollama import ChatOllama
-from langchain_community.embeddings.ollama import OllamaEmbeddings
+from langchain_ollama import ChatOllama, OllamaEmbeddings
 from ollama import AsyncClient
 
 from paita.llm.services.service import Service
@@ -23,7 +22,7 @@ class Ollama(Service):
 
     @classmethod
     def embeddings(cls, model_id: Optional[str] = None) -> OllamaEmbeddings:
-        return OllamaEmbeddings(model=model_id) if model_id else OllamaEmbeddings()
+        return OllamaEmbeddings(model=model_id) if model_id else OllamaEmbeddings(model="llama3.1")
 
     def chat_model(self) -> ChatOllama:
         model_kwargs = {

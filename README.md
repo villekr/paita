@@ -4,16 +4,15 @@
 Paita is textual assistant for your terminal that supports multiple AI Services and models.
 
 ## Key Features
-- **Supports Multiple AI Services:** Paita integrates with a variety of AI services through the [LangChain](https://python.langchain.com) library. If AI service is compatible with LangChain then it can be used also with Paita. Currently OpenAI and AWS Bedrock models are supported.
+- **Supports Multiple AI Services:** Paita integrates with a variety of AI services through the [LangChain](https://python.langchain.com) library. If AI service is compatible with LangChain then it can be used also with Paita.
 - **Textual User Interface on your terminal:** Paita is based on [Textual](https://textual.textualize.io/) and provides a sophisticated user interface right within your terminal, combining the complexity of a GUI with console simplicity.                                                                                       
 - **Cross-Platform Compatibility:** Paita is compatible with Windows, macOS, and Linux systems across most terminals; if Python runs in your environment and Textual supports it, then Paita will work.
-- **Supports Retrieval-Augmented Generation (RAG):** Paita supports local vectorstore (Chroma) and crawling web page content. This feature is currently in PoC phase.
+- **Supports Retrieval-Augmented Generation (RAG):** Paita supports local vectorstore (Chroma) and crawling web page content.
 
 ### Supported AI Services
 * OpenAI
 * AWS Bedrock
 * Ollama (local models)
-* (More to come soon...)
 
 ## Getting Started
 
