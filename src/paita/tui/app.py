@@ -51,7 +51,7 @@ class ChatApp(App):
     BINDINGS = [
         Binding("ctrl+q", "quit", "Quit", key_display="ctrl+q"),
         Binding("ctrl+x", "clear", "Clear", key_display="ctrl+x"),
-        Binding("ctrl+p", "settings", "Settings", key_display="ctrl+p"),
+        Binding("ctrl+1", "settings", "Settings", key_display="ctrl+1"),
     ]
 
     def __init__(self):

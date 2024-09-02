@@ -12,9 +12,6 @@ from langchain_aws import BedrockEmbeddings, ChatBedrock
 from paita.llm.services.service import Service
 from paita.utils.logger import log
 
-# https://github.com/langchain-ai/langchain/issues/11668
-BEDROCK_DISABLE_STREAMING = bool(os.getenv("BEDROCK_DISABLE_STREAMING", "True"))
-
 
 class Bedrock(Service):
     @classmethod
@@ -47,7 +44,7 @@ class Bedrock(Service):
         log.debug(f"{model_kwargs=}")
         return ChatBedrock(
             model_id=self._settings_model.ai_model,
-            streaming=(False if BEDROCK_DISABLE_STREAMING else self._settings_model.ai_streaming),
+            streaming=self._settings_model.ai_streaming,
             model_kwargs=model_kwargs,
             # max_tokens=settings_model.ai_max_tokens,
             # n=settings_model.ai_n,
