@@ -83,7 +83,7 @@ class Chat:
     async def request(self, data: str) -> str:
         await self._trim_history(self._chat_history, max_length=self._settings_model.ai_history_depth)
 
-        if self._settings_model.ai_streaming and not bedrock.BEDROCK_DISABLE_STREAMING:
+        if self._settings_model.ai_streaming:
             async for _ in self._chain.astream(
                 {"input": data},
                 {"configurable": {"session_id": "unused"}},
