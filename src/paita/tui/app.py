@@ -1,7 +1,9 @@
+import os
 from enum import Enum
 from pathlib import PurePath
-from typing import Union, Optional
+from typing import Optional, Union
 
+from appdirs import user_config_dir
 from textual.app import App, ComposeResult, Widget
 from textual.binding import Binding
 from textual.containers import Container, Horizontal, VerticalScroll
@@ -10,14 +12,17 @@ from textual.widgets import Button, Footer, Header, Input, LoadingIndicator
 from paita.llm.callbacks import AsyncHandler
 from paita.llm.chat import Chat
 from paita.llm.chat_history import ChatHistory
+from paita.llm.services.service import LLMSettingsModel
 from paita.localization import labels
-from paita.settings.llm_settings.llm_settings import LLMSettings, LLMSettingsModel
-from paita.settings.rag_settings import RAG
+from paita.settings.llm_settings import LLMSettings
+
+# from paita.settings.models import RAGModel
 from paita.tui.error_screen import ErrorScreen
+from paita.tui.llm_settings_screen import LLMSettingsScreen
 from paita.tui.message_box import MessageBox
 from paita.tui.multi_line_input import MultiLineInput
-from paita.tui.llm_settings_screen import LLMSettingsScreen
-from paita.tui.rag_settings_screen import RAGSettingsScreen
+
+# from paita.tui.rag_settings_screen import RAGSettingsScreen
 from paita.tui.wait_screen import WaitScreen
 from paita.utils.logger import log
 
@@ -41,21 +46,24 @@ class ChatApp(App):
         Binding("ctrl+q", "quit", "Quit", key_display="ctrl+q"),
         Binding("ctrl+x", "clear", "Clear", key_display="ctrl+x"),
         Binding("ctrl+1", "llm_settings", "LLM Settings", key_display="ctrl+1"),
-        Binding("ctrl+2", "rag_settings", "RAG Settings", key_display="ctrl+1"),
     ]
 
     def __init__(self):
         super().__init__()
 
         self.settings: Optional[LLMSettings] = None
-        self.rag: Optional[RAG] = None
+        # self.rag: Optional[RAGModel] = None
+        config_dir = user_config_dir(appname=labels.APP_TITLE, appauthor=labels.APP_AUTHOR)
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir)
+
+        self._chat_history = ChatHistory(app_name=labels.APP_TITLE, app_author=labels.APP_AUTHOR)
+
         self._chat: Optional[Chat] = None
 
         self._current_message: Union[MessageBox or None] = None
         self._current_id: str = "id_0"
         self._last_focused: Union[Widget or None] = None
-
-        self._chat_history = ChatHistory(app_name=labels.APP_TITLE, app_author=labels.APP_AUTHOR)
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
@@ -93,17 +101,17 @@ class ChatApp(App):
             callback=callback,
         )
 
-    def action_rag_settings(self, allow_cancel: bool = False) -> None:  # noqa: FBT001, FBT002
-        settings_screen = RAGSettingsScreen(
-            settings=self.settings,
-            allow_cancel=allow_cancel,
-        )
-        callback = self.exit_settings
-        log.info(f"{callback=}")
-        self.push_screen(
-            screen=settings_screen,
-            callback=callback,
-        )
+    # def action_rag_settings(self, allow_cancel: bool = False) -> None:
+    #     settings_screen = RAGSettingsScreen(
+    #         settings=self.settings,
+    #         allow_cancel=allow_cancel,
+    #     )
+    #     callback = self.exit_settings
+    #     log.info(f"{callback=}")
+    #     self.push_screen(
+    #         screen=settings_screen,
+    #         callback=callback,
+    #     )
 
     async def action_clear(self) -> None:
         await self._chat_history.history.aclear()
@@ -120,14 +128,14 @@ class ChatApp(App):
         if changed:
             self.init_chat()
 
-    def exit_rag_settings(self, changed: bool = False):  # noqa: FBT001, FBT002
-        if changed:
-            self.rag = RAG.create_rag(
-                app_name=labels.APP_TITLE,
-                app_author=labels.APP_AUTHOR,
-                settings_model=self.settings.settings_model,
-            )
-            self.init_chat()
+    # def exit_rag_settings(self, changed: bool = False):
+    #     if changed:
+    #         self.rag = RAGModel.create_rag(
+    #             app_name=labels.APP_TITLE,
+    #             app_author=labels.APP_AUTHOR,
+    #             settings_model=self.settings.settings_model,
+    #         )
+    #         self.init_chat()
 
     async def on_mount(self):
         await self._mount_chat_history()
@@ -159,14 +167,14 @@ class ChatApp(App):
 
         await self.pop_screen()
         if settings_exists:
-            self.rag = RAG.create_rag(
-                app_name=labels.APP_TITLE,
-                app_author=labels.APP_AUTHOR,
-                settings_model=self.settings.settings_model,
-            )
+            # self.rag = RAGModel.create_rag(
+            #     app_name=labels.APP_TITLE,
+            #     app_author=labels.APP_AUTHOR,
+            #     settings_model=self.settings.settings_model,
+            # )
             self.init_chat()
         else:
-            self.action_settings(allow_cancel=False)
+            self.action_llm_settings(allow_cancel=False)
 
     def init_chat(self):
         if self._chat is None:
@@ -177,9 +185,9 @@ class ChatApp(App):
 
         try:
             self._chat.init_model(
-                settings_model=self.settings.settings_model,
+                settings_model=self.settings.model,
                 chat_history=self._chat_history,
-                rag=self.rag,
+                # rag=self.rag,
                 callback_handler=callback_handler,
             )
             if TEXT_AREA:
@@ -192,12 +200,12 @@ class ChatApp(App):
                 app_name=labels.APP_TITLE,
                 app_author=labels.APP_AUTHOR,
             )
-            self.rag = RAG.create_rag(
-                app_name=labels.APP_TITLE,
-                app_author=labels.APP_AUTHOR,
-                settings_model=self.settings.settings_model,
-            )
-            self.action_settings(allow_cancel=False)
+            # self.rag = RAGModel.create_rag(
+            #     app_name=labels.APP_TITLE,
+            #     app_author=labels.APP_AUTHOR,
+            #     settings_model=self.settings.model,
+            # )
+            self.action_llm_settings(allow_cancel=False)
 
     async def process_conversation(self) -> None:
         if TEXT_AREA:

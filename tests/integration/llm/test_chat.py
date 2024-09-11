@@ -4,8 +4,8 @@ from paita.llm.chat import AsyncHandler, Chat
 from paita.llm.chat_history import ChatHistory
 from paita.llm.enums import AIService
 from paita.llm.models import get_embeddings
-from paita.settings.rag_settings import RAG, RAGModel, RAGVectorStoreType
 from paita.settings.llm_settings import SettingsModel
+from paita.settings.rag_settings import RAG, RAGModel, RAGVectorStoreType
 
 ai_service_models = {
     # AIService.AWSBedRock.value: "anthropic.claude-v2",

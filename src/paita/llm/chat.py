@@ -8,8 +8,9 @@ from paita.llm.callbacks import AsyncHandler
 from paita.llm.chat_history import ChatHistory
 from paita.llm.models import AIService
 from paita.llm.services import bedrock, ollama, openai
-from paita.settings.rag_settings import RAG
-from paita.settings.llm_settings import SettingsModel
+
+# from paita.settings.rag_settings import RAG
+from paita.llm.services.service import LLMSettingsModel
 
 if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
@@ -26,9 +27,9 @@ class Chat:
 
     def __init__(self):
         self._chat_model: BaseChatModel = None
-        self._settings_model: SettingsModel = None
+        self._settings_model: LLMSettingsModel = None
         self._chat_history: ChatHistory = None
-        self._rag: RAG = None
+        # self._rag: RAG = None
         self._chain: Runnable = None
         self._callback_handler: AsyncHandler = None
         self.parser: StrOutputParser = StrOutputParser()
@@ -36,14 +37,14 @@ class Chat:
     def init_model(
         self,
         *,
-        settings_model: SettingsModel,
+        settings_model: LLMSettingsModel,
         chat_history: ChatHistory,
-        rag: RAG = None,
+        # rag: RAG = None,
         callback_handler: AsyncHandler,
     ):
         self._settings_model = settings_model
         self._chat_history = chat_history
-        self._rag = rag
+        # self._rag = rag
         self._callback_handler = callback_handler
 
         if settings_model.ai_service == AIService.AWSBedRock.value:
@@ -56,31 +57,31 @@ class Chat:
             msg = f"Invalid AI Service {settings_model.ai_service}"
             raise ValueError(msg)
         self._chat_model = service.chat_model()
-        if self._rag is not None and self._rag.rag_model.rag_enabled:
-            self._chain = self._rag.chain(
-                chat=self._chat_model, chat_history=self._chat_history.history,
-            )
-        else:
-            prompt = ChatPromptTemplate.from_messages(
-                [
-                    (
-                        "system",
-                        self._settings_model.ai_persona,
-                    ),
-                    MessagesPlaceholder(variable_name="chat_history"),
-                    ("human", "{input}"),
-                ]
-            )
+        # if self._rag is not None and self._rag.rag_model.rag_enabled:
+        #     self._chain = self._rag.chain(
+        #         chat=self._chat_model, chat_history=self._chat_history.history,
+        #     )
+        # else:
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    self._settings_model.ai_persona,
+                ),
+                MessagesPlaceholder(variable_name="chat_history"),
+                ("human", "{input}"),
+            ]
+        )
 
-            chain = prompt | self._chat_model | self.parser
-            self._chain = RunnableWithMessageHistory(
-                chain,
-                lambda session_id: self._chat_history.history,  # noqa: ARG005
-                input_messages_key="input",
-                history_messages_key="chat_history",
-            )
+        chain = prompt | self._chat_model | self.parser
+        self._chain = RunnableWithMessageHistory(
+            chain,
+            lambda session_id: self._chat_history.history,  # noqa: ARG005
+            input_messages_key="input",
+            history_messages_key="chat_history",
+        )
 
-    async def request(self, data: str) -> str:
+    async def request(self, data: str):
         await self._trim_history(self._chat_history, max_length=self._settings_model.ai_history_depth)
 
         if self._settings_model.ai_streaming:

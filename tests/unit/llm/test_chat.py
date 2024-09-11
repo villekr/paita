@@ -3,7 +3,7 @@ import pytest
 from paita.llm.chat import AsyncHandler, Chat
 from paita.llm.chat_history import ChatHistory
 from paita.llm.enums import AIService
-from paita.settings.llm_settings import SettingsModel
+from paita.settings.llm_settings import LLMSettingsModel
 
 ai_service_models = {
     AIService.AWSBedRock.value: "anthropic.claude-v2",
@@ -14,7 +14,7 @@ ai_service_models = {
 @pytest.fixture(params=list(ai_service_models.items()))
 def settings_model(request):
     key, value = request.param
-    return SettingsModel(ai_service=key, ai_model=value)
+    return LLMSettingsModel(ai_service=key, ai_model=value)
 
 
 def mock_callback():

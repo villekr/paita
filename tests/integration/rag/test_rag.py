@@ -3,8 +3,7 @@ from pydantic import ValidationError
 
 from paita.llm.enums import AIService
 from paita.llm.models import get_embeddings
-from paita.settings.rag_settings import RAGSource, RAGSources, RAGSourceType
-from paita.settings.rag_settings import RAG, RAGModel, RAGVectorStoreType
+from paita.settings.rag_settings import RAG, RAGModel, RAGSource, RAGSources, RAGSourceType, RAGVectorStoreType
 
 
 @pytest.fixture

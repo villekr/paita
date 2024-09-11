@@ -6,8 +6,10 @@ from textual.containers import Container, Horizontal, VerticalScroll
 from textual.screen import ModalScreen
 from textual.validation import Function, Number
 from textual.widgets import Button, Checkbox, Header, Input, Select, TextArea
+
 import paita.localization.labels as label
-from paita.settings.llm_settings.llm_settings import LLMSettings, LLMSettingsModel
+from paita.llm.services.service import LLMSettingsModel
+from paita.settings.llm_settings import LLMSettings
 from paita.utils.logger import log
 from paita.utils.string_utils import dict_to_str, str_to_dict, str_to_num, to_str
 
@@ -23,11 +25,11 @@ class LLMSettingsScreen(ModalScreen[bool]):
     ):
         super().__init__()
         self.settings: LLMSettings = settings
-        self.settings.settings_model = settings.settings_model.model_copy()
+        self.settings.model = settings.model.model_copy()
         self.allow_cancel: bool = allow_cancel
 
         self.available_ai_services = self.settings.available_ai_services()
-        self.available_ai_models = self.settings.available_ai_models(self.settings.settings_model.ai_service, None)
+        self.available_ai_models = self.settings.available_ai_models(self.settings.model.ai_service, None)
         log.debug(f"{self.available_ai_services=} {self.available_ai_models=}")
 
     def compose(self) -> ComposeResult:
@@ -37,7 +39,7 @@ class LLMSettingsScreen(ModalScreen[bool]):
                 with Horizontal(classes="settings_invisible_block"):
                     yield Select(
                         [(item, item) for item in self.available_ai_services],
-                        value=self.settings.settings_model.ai_service,
+                        value=self.settings.model.ai_service,
                         prompt="AI Service",
                         id="ai_service",
                         classes="settings_small_option",
@@ -45,7 +47,7 @@ class LLMSettingsScreen(ModalScreen[bool]):
                     )
                     yield Select(
                         [(item, item) for item in self.available_ai_models],
-                        value=self.settings.settings_model.ai_model,
+                        value=self.settings.model.ai_model,
                         prompt="AI Model",
                         id="ai_model",
                         classes="settings_option",
@@ -53,14 +55,14 @@ class LLMSettingsScreen(ModalScreen[bool]):
                     )
                     yield Checkbox(
                         label.AI_STREAMING,
-                        value=self.settings.settings_model.ai_streaming,
+                        value=self.settings.model.ai_streaming,
                         id="ai_streaming",
                         classes="settings_checkbox",
                     )
                     # yield Button(label="Refresh", variant="success", id="ai_refresh")  # TODO: ai refresh
 
                 yield TextArea(
-                    text=self.settings.settings_model.ai_persona,
+                    text=self.settings.model.ai_persona,
                     id="ai_persona",
                     classes="settings_textarea",
                 )
@@ -68,14 +70,14 @@ class LLMSettingsScreen(ModalScreen[bool]):
                 with Horizontal(classes="settings_invisible_block"):
                     yield Input(
                         placeholder=label.AI_MODEL_KWARGS,
-                        value=dict_to_str(self.settings.settings_model.ai_model_kwargs),
+                        value=dict_to_str(self.settings.model.ai_model_kwargs),
                         id="ai_model_kwargs",
                         classes="settings_input",
                         validators=[Function(self.validate_ai_model_kwargs, "Invalid dictionary")],
                     )
                     yield Input(
                         placeholder=label.AI_MAX_TOKENS,
-                        value=to_str(self.settings.settings_model.ai_max_tokens),
+                        value=to_str(self.settings.model.ai_max_tokens),
                         id="ai_max_tokens",
                         classes="settings_small_input",
                         type="integer",
@@ -84,7 +86,7 @@ class LLMSettingsScreen(ModalScreen[bool]):
                     )
                     yield Input(
                         placeholder=label.AI_HISTORY_DEPTH,
-                        value=to_str(self.settings.settings_model.ai_history_depth),
+                        value=to_str(self.settings.model.ai_history_depth),
                         id="ai_history_depth",
                         classes="settings_small_input",
                         type="integer",
@@ -116,21 +118,18 @@ class LLMSettingsScreen(ModalScreen[bool]):
             return True
 
     async def on_mount(self) -> None:
-        if (
-            self.settings.settings_model.ai_service is Select.BLANK
-            or self.settings.settings_model.ai_model is Select.BLANK
-        ):
+        if self.settings.model.ai_service is Select.BLANK or self.settings.model.ai_model is Select.BLANK:
             self.query_one("#apply").disabled = True
 
     @on(Checkbox.Changed)
     async def checkbox_changed(self, event: Checkbox.Changed) -> None:
-            self.query_one("#ai_persona").disabled = event.checkbox.value
+        self.query_one("#ai_persona").disabled = event.checkbox.value
 
     @on(Select.Changed)
     async def select_changed(self, event: Select.Changed) -> None:
         if event.control.id == "ai_service":
             value = event.value
-            if value == self.settings.settings_model.ai_service:
+            if value == self.settings.model.ai_service:
                 return
             self.settings.ai_service = value
 
@@ -140,7 +139,7 @@ class LLMSettingsScreen(ModalScreen[bool]):
             widget.set_options((item, item) for item in models)
         elif event.control.id == "ai_model":
             value = event.value
-            if value == self.settings.settings_model.ai_model:
+            if value == self.settings.model.ai_model:
                 return
             self.settings.ai_model = value
             self.query_one("#apply").disabled = False
@@ -176,7 +175,7 @@ class LLMSettingsScreen(ModalScreen[bool]):
         if (value := self.query_one("#ai_history_depth").value) != "":
             model.ai_history_depth = str_to_num(value)
 
-        self.settings.settings_model = model
+        self.settings.model = model
 
         if event.button.id == "apply":
             await self.settings.save()

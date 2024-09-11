@@ -2,15 +2,13 @@ from __future__ import annotations
 
 from typing import Any, List, Tuple
 
-import aiofiles
-from aiofiles import os as aiofiles_os
 from appdirs import user_config_dir
 from cache3 import DiskCache
 
 from paita.llm.enums import Tag
 from paita.llm.models import list_all_models
+from paita.llm.services.service import LLMSettingsModel
 from paita.localization import labels
-from paita.settings.llm_settings.models import LLMSettingsModel
 from paita.settings.base_settings import BaseSettings, SettingsBackendType, load_and_parse
 
 
@@ -34,10 +32,12 @@ class LLMSettings(BaseSettings):
         app_name: str,
         app_author: str,
         backend_type: SettingsBackendType = SettingsBackendType.LOCAL,
-    ) -> BaseSettings:
+    ) -> LLMSettings:
         if backend_type == SettingsBackendType.LOCAL:
             try:
-                model: LLMSettingsModel = await load_and_parse(file_name=cls.FILE_NAME, app_name=app_name, app_author=app_author, model_type=LLMSettingsModel)
+                model: LLMSettingsModel = await load_and_parse(
+                    file_name=cls.FILE_NAME, app_name=app_name, app_author=app_author, model_type=LLMSettingsModel
+                )
             except FileNotFoundError:
                 model: LLMSettingsModel = LLMSettingsModel()
             return LLMSettings(
@@ -47,6 +47,8 @@ class LLMSettings(BaseSettings):
                 app_author=app_author,
                 backend_type=backend_type,
             )
+        msg = f"Backend type not supported {backend_type}"
+        raise NotImplementedError(msg)
 
     async def refresh_llms(self):
         all_models = await list_all_models()
@@ -60,15 +62,15 @@ class LLMSettings(BaseSettings):
 
         available_ai_services: List[Tuple[str, str]] = list(self.cache.keys(tag=Tag.AI_MODELS.value))
 
-        if self._model.ai_service not in available_ai_services:
-            self._model.ai_service = available_ai_services[0]
+        if self.model.ai_service not in available_ai_services:
+            self.model.ai_service = available_ai_services[0]
 
             available_ai_models: List[Tuple[str, str]] = self.cache.get(
-                self._model.ai_service, [], tag=Tag.AI_MODELS.value
+                self.model.ai_service, [], tag=Tag.AI_MODELS.value
             )
 
-            if self._model.ai_model not in available_ai_models:
-                self._model.ai_model = available_ai_models[0]
+            if self.model.ai_model not in available_ai_models:
+                self.model.ai_model = available_ai_models[0]
 
     def available_ai_services(self) -> list[tuple[Any, str]]:
         return list(self.cache.keys(tag=Tag.AI_MODELS.value))
