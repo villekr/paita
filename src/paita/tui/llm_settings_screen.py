@@ -135,7 +135,7 @@ class LLMSettingsScreen(ModalScreen[bool]):
 
             log.debug(f"{event.value}")
             models = self.settings.available_ai_models(event.value, Select.BLANK)
-            widget: Select = self.query_one("#ai_model")
+            widget: Select = self.query_one("#ai_model", Select)
             widget.set_options((item, item) for item in models)
         elif event.control.id == "ai_model":
             value = event.value
@@ -158,27 +158,26 @@ class LLMSettingsScreen(ModalScreen[bool]):
         #     self.parent.pop_screen()
         #     return
 
-        # PoC RAG approach, we always update model and save
         model: LLMSettingsModel = LLMSettingsModel(
-            ai_service=self.query_one("#ai_service").value,
-            ai_model=self.query_one("#ai_model").value,
+            ai_service=self.query_one("#ai_service", Select).value,
+            ai_model=self.query_one("#ai_model", Select).value,
         )
-        if (value := self.query_one("#ai_persona").text) != "":
+        if (value := self.query_one("#ai_persona", TextArea).text) != "":
             model.ai_persona = value
-        if (value := self.query_one("#ai_model_kwargs").value) != "":
+        if (value := self.query_one("#ai_model_kwargs", Input).value) != "":
             model.ai_model_kwargs = str_to_dict(value)
-        model.ai_streaming = self.query_one("#ai_streaming").value
+        model.ai_streaming = self.query_one("#ai_streaming", Checkbox).value
         # if (value := self.query_one("#ai_n").value) != "":
         #     model.ai_n = str_to_num(value)
-        if (value := self.query_one("#ai_max_tokens").value) != "":
+        if (value := self.query_one("#ai_max_tokens", Input).value) != "":
             model.ai_max_tokens = str_to_num(value)
-        if (value := self.query_one("#ai_history_depth").value) != "":
+        if (value := self.query_one("#ai_history_depth", Input).value) != "":
             model.ai_history_depth = str_to_num(value)
 
         self.settings.model = model
 
         if event.button.id == "apply":
             await self.settings.save()
-            self.dismiss(True)
+            await self.dismiss(True)
         else:
-            self.dismiss(False)
+            await self.dismiss(False)

@@ -44,12 +44,12 @@ async def test_read_not_found():
 
 @pytest.mark.asyncio
 async def test_write_read():
-    instance: Collection = None
+    instance: JsonUtils = None
     try:
         instance = JsonUtils(app_name=APP_NAME, app_author=APP_AUTHOR, file_name=FILE_NAME)
         await instance.write(COLLECTION)
-        rag_sources = await instance.read(COLLECTION)
-        assert rag_sources == COLLECTION
+        collection = await instance.read(Collection)
+        assert collection == COLLECTION
     finally:
         await instance.delete()
 

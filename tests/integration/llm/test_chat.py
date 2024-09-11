@@ -3,9 +3,7 @@ import pytest
 from paita.llm.chat import AsyncHandler, Chat
 from paita.llm.chat_history import ChatHistory
 from paita.llm.enums import AIService
-from paita.llm.models import get_embeddings
-from paita.settings.llm_settings import SettingsModel
-from paita.settings.rag_settings import RAG, RAGModel, RAGVectorStoreType
+from paita.llm.services.service import LLMSettingsModel
 
 ai_service_models = {
     # AIService.AWSBedRock.value: "anthropic.claude-v2",
@@ -17,20 +15,7 @@ ai_service_models = {
 @pytest.fixture(params=list(ai_service_models.items()))
 def settings_model(request):
     key, value = request.param
-    return SettingsModel(ai_service=key, ai_model=value)
-
-
-@pytest.fixture(params=list(ai_service_models.items()))
-def rag_manager(request):
-    key, value = request.param
-    return RAG(
-        RAGModel(
-            app_name="test_rag_manager",
-            app_author="unit_test_author",
-            embeddings=get_embeddings(ai_service=key),
-            vector_store_type=RAGVectorStoreType.CHROMA,
-        )
-    )
+    return LLMSettingsModel(ai_service=key, ai_model=value)
 
 
 def mock_callback():
@@ -61,22 +46,20 @@ def chat_history():
 
 @pytest.mark.integration
 @pytest.mark.usefixtures("mock_env")
-def test_init_models(chat, settings_model, chat_history, rag_manager, callback_handler):
+def test_init_models(chat, settings_model, chat_history, callback_handler):
     chat.init_model(
         settings_model=settings_model,
         chat_history=chat_history,
-        rag_manager=rag_manager,
         callback_handler=callback_handler,
     )
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_request_empty_history(chat, settings_model, chat_history, rag_manager, callback_handler):
+async def test_request_empty_history(chat, settings_model, chat_history, callback_handler):
     chat.init_model(
         settings_model=settings_model,
         chat_history=chat_history,
-        rag_manager=rag_manager,
         callback_handler=callback_handler,
     )
 
@@ -85,11 +68,10 @@ async def test_request_empty_history(chat, settings_model, chat_history, rag_man
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_request_some_history(chat, settings_model, chat_history, rag_manager, callback_handler):
+async def test_request_some_history(chat, settings_model, chat_history, callback_handler):
     chat.init_model(
         settings_model=settings_model,
         chat_history=chat_history,
-        rag_manager=rag_manager,
         callback_handler=callback_handler,
     )
     await chat.request("First")

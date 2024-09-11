@@ -8,8 +8,6 @@ from paita.llm.callbacks import AsyncHandler
 from paita.llm.chat_history import ChatHistory
 from paita.llm.models import AIService
 from paita.llm.services import bedrock, ollama, openai
-
-# from paita.settings.rag_settings import RAG
 from paita.llm.services.service import LLMSettingsModel
 
 if TYPE_CHECKING:
@@ -22,14 +20,13 @@ HISTORY_FILE_NAME = "chat_history"
 
 class Chat:
     """
-    Chat encapsulates chat history, RAG usage and can use different AI Models
+    Chat encapsulates chat history and can use different AI Models
     """
 
     def __init__(self):
         self._chat_model: BaseChatModel = None
         self._settings_model: LLMSettingsModel = None
         self._chat_history: ChatHistory = None
-        # self._rag: RAG = None
         self._chain: Runnable = None
         self._callback_handler: AsyncHandler = None
         self.parser: StrOutputParser = StrOutputParser()
@@ -39,12 +36,10 @@ class Chat:
         *,
         settings_model: LLMSettingsModel,
         chat_history: ChatHistory,
-        # rag: RAG = None,
         callback_handler: AsyncHandler,
     ):
         self._settings_model = settings_model
         self._chat_history = chat_history
-        # self._rag = rag
         self._callback_handler = callback_handler
 
         if settings_model.ai_service == AIService.AWSBedRock.value:
@@ -57,11 +52,6 @@ class Chat:
             msg = f"Invalid AI Service {settings_model.ai_service}"
             raise ValueError(msg)
         self._chat_model = service.chat_model()
-        # if self._rag is not None and self._rag.rag_model.rag_enabled:
-        #     self._chain = self._rag.chain(
-        #         chat=self._chat_model, chat_history=self._chat_history.history,
-        #     )
-        # else:
         prompt = ChatPromptTemplate.from_messages(
             [
                 (

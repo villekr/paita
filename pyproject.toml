@@ -29,7 +29,6 @@ dependencies = [
   "langchain-openai~=0.1.23",
   "langchain-aws~=0.1.17",
   "langchain-ollama~=0.1.2",
-  "langchain-chroma~=0.1.3",
   "langchain~=0.2.15",
   "appdirs~=1.4.4",
   "pydantic~=2.8.2",
@@ -37,12 +36,6 @@ dependencies = [
   "aiofiles~=24.1.0",
   "pyperclip~=1.9.0",
   "eval-type-backport~=0.2.0",
-  "ollama~=0.3.2",
-  "bs4~=0.0.2",
-  # "beautifulsoup4~=",  # langchain-community document-loader directly depends on bs4
-  # "chromadb~=0.5.5",  # rely on boto3 version coming from langchain-chroma
-  "validators~=0.33.0",
-  "lxml~=5.3.0"
 ]
 
 [project.urls]

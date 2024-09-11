@@ -15,14 +15,10 @@ from paita.llm.chat_history import ChatHistory
 from paita.llm.services.service import LLMSettingsModel
 from paita.localization import labels
 from paita.settings.llm_settings import LLMSettings
-
-# from paita.settings.models import RAGModel
 from paita.tui.error_screen import ErrorScreen
 from paita.tui.llm_settings_screen import LLMSettingsScreen
 from paita.tui.message_box import MessageBox
 from paita.tui.multi_line_input import MultiLineInput
-
-# from paita.tui.rag_settings_screen import RAGSettingsScreen
 from paita.tui.wait_screen import WaitScreen
 from paita.utils.logger import log
 
@@ -52,7 +48,6 @@ class ChatApp(App):
         super().__init__()
 
         self.settings: Optional[LLMSettings] = None
-        # self.rag: Optional[RAGModel] = None
         config_dir = user_config_dir(appname=labels.APP_TITLE, appauthor=labels.APP_AUTHOR)
         if not os.path.exists(config_dir):
             os.makedirs(config_dir)
@@ -101,18 +96,6 @@ class ChatApp(App):
             callback=callback,
         )
 
-    # def action_rag_settings(self, allow_cancel: bool = False) -> None:
-    #     settings_screen = RAGSettingsScreen(
-    #         settings=self.settings,
-    #         allow_cancel=allow_cancel,
-    #     )
-    #     callback = self.exit_settings
-    #     log.info(f"{callback=}")
-    #     self.push_screen(
-    #         screen=settings_screen,
-    #         callback=callback,
-    #     )
-
     async def action_clear(self) -> None:
         await self._chat_history.history.aclear()
         await self.query_one("#conversation").remove()
@@ -127,15 +110,6 @@ class ChatApp(App):
     def exit_settings(self, changed: bool = False):  # noqa: FBT001, FBT002
         if changed:
             self.init_chat()
-
-    # def exit_rag_settings(self, changed: bool = False):
-    #     if changed:
-    #         self.rag = RAGModel.create_rag(
-    #             app_name=labels.APP_TITLE,
-    #             app_author=labels.APP_AUTHOR,
-    #             settings_model=self.settings.settings_model,
-    #         )
-    #         self.init_chat()
 
     async def on_mount(self):
         await self._mount_chat_history()
@@ -167,11 +141,6 @@ class ChatApp(App):
 
         await self.pop_screen()
         if settings_exists:
-            # self.rag = RAGModel.create_rag(
-            #     app_name=labels.APP_TITLE,
-            #     app_author=labels.APP_AUTHOR,
-            #     settings_model=self.settings.settings_model,
-            # )
             self.init_chat()
         else:
             self.action_llm_settings(allow_cancel=False)
@@ -187,7 +156,6 @@ class ChatApp(App):
             self._chat.init_model(
                 settings_model=self.settings.model,
                 chat_history=self._chat_history,
-                # rag=self.rag,
                 callback_handler=callback_handler,
             )
             if TEXT_AREA:
@@ -200,11 +168,6 @@ class ChatApp(App):
                 app_name=labels.APP_TITLE,
                 app_author=labels.APP_AUTHOR,
             )
-            # self.rag = RAGModel.create_rag(
-            #     app_name=labels.APP_TITLE,
-            #     app_author=labels.APP_AUTHOR,
-            #     settings_model=self.settings.model,
-            # )
             self.action_llm_settings(allow_cancel=False)
 
     async def process_conversation(self) -> None:
