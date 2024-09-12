@@ -5,8 +5,6 @@ import pytest
 from cache3 import DiskCache
 
 from paita.llm.enums import AIService, Tag
-from paita.tui.factory import create_rag_manager
-from paita.utils.settings_model import SettingsModel
 
 MODELS_A = ["modelA1", "modelA2", "modelA3"]
 MODELS_B = ["modelB1", "modelB2", "modelB3"]
@@ -25,14 +23,3 @@ def cache() -> DiskCache:
 
     if path.exists():
         rmtree(path.as_posix())
-
-
-@pytest.mark.integration
-def test_create_rag_manager():
-    settings_model = SettingsModel(ai_service=AIService.AWSBedRock)
-    rag_manager = create_rag_manager(
-        app_name="test_rag_manager",
-        app_author="unit_test_author",
-        settings_model=settings_model,
-    )
-    assert rag_manager is not None

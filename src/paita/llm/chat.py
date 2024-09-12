@@ -8,8 +8,7 @@ from paita.llm.callbacks import AsyncHandler
 from paita.llm.chat_history import ChatHistory
 from paita.llm.models import AIService
 from paita.llm.services import bedrock, ollama, openai
-from paita.rag.rag_manager import RAGManager
-from paita.utils.settings_model import SettingsModel
+from paita.llm.services.service import LLMSettingsModel
 
 if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
@@ -21,14 +20,13 @@ HISTORY_FILE_NAME = "chat_history"
 
 class Chat:
     """
-    Chat encapsulates chat history, RAG usage and can use different AI Models
+    Chat encapsulates chat history and can use different AI Models
     """
 
     def __init__(self):
         self._chat_model: BaseChatModel = None
-        self._settings_model: SettingsModel = None
+        self._settings_model: LLMSettingsModel = None
         self._chat_history: ChatHistory = None
-        self._rag_manager: RAGManager = None
         self._chain: Runnable = None
         self._callback_handler: AsyncHandler = None
         self.parser: StrOutputParser = StrOutputParser()
@@ -36,14 +34,12 @@ class Chat:
     def init_model(
         self,
         *,
-        settings_model: SettingsModel,
+        settings_model: LLMSettingsModel,
         chat_history: ChatHistory,
-        rag_manager: RAGManager = None,
         callback_handler: AsyncHandler,
     ):
         self._settings_model = settings_model
         self._chat_history = chat_history
-        self._rag_manager = rag_manager
         self._callback_handler = callback_handler
 
         if settings_model.ai_service == AIService.AWSBedRock.value:
@@ -56,31 +52,26 @@ class Chat:
             msg = f"Invalid AI Service {settings_model.ai_service}"
             raise ValueError(msg)
         self._chat_model = service.chat_model()
-        if self._settings_model.ai_rag_enabled:
-            self._chain = self._rag_manager.chain(
-                chat=self._chat_model, chat_history=self._chat_history.history, settings_model=self._settings_model
-            )
-        else:
-            prompt = ChatPromptTemplate.from_messages(
-                [
-                    (
-                        "system",
-                        self._settings_model.ai_persona,
-                    ),
-                    MessagesPlaceholder(variable_name="chat_history"),
-                    ("human", "{input}"),
-                ]
-            )
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    self._settings_model.ai_persona,
+                ),
+                MessagesPlaceholder(variable_name="chat_history"),
+                ("human", "{input}"),
+            ]
+        )
 
-            chain = prompt | self._chat_model | self.parser
-            self._chain = RunnableWithMessageHistory(
-                chain,
-                lambda session_id: self._chat_history.history,  # noqa: ARG005
-                input_messages_key="input",
-                history_messages_key="chat_history",
-            )
+        chain = prompt | self._chat_model | self.parser
+        self._chain = RunnableWithMessageHistory(
+            chain,
+            lambda session_id: self._chat_history.history,  # noqa: ARG005
+            input_messages_key="input",
+            history_messages_key="chat_history",
+        )
 
-    async def request(self, data: str) -> str:
+    async def request(self, data: str):
         await self._trim_history(self._chat_history, max_length=self._settings_model.ai_history_depth)
 
         if self._settings_model.ai_streaming:

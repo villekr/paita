@@ -21,11 +21,6 @@ class JsonUtils:
         async with aiofiles.open(self.file_name, "r") as json_file:
             json_str = await json_file.read()
             return model.model_validate_json(json_str)
-            # json_obj = json.loads(json_data)
-            # log.debug(f"{json_obj=}")
-            # model_instance = model.model_validate(json_obj)
-            # log.debug(f"{model_instance=}")
-            # return model_instance
 
     async def write(self, model: BaseModel):
         self.config_dir.mkdir(parents=True, exist_ok=True)
